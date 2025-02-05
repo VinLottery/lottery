@@ -142,3 +142,40 @@ document.getElementById("quickAll").addEventListener("click", quickPickAll);
 
 // Generate tickets on page load
 generateTickets();
+// Function to buy tickets
+async function buyTickets() {
+    if (!userAccount) {
+        alert("Please connect your wallet first.");
+        return;
+    }
+
+    // Filter valid tickets (must have 5 numbers + 1 Mega Ball)
+    const validTickets = selectedNumbers
+        .filter(ticket => ticket.numbers.length === 5 && ticket.mega !== null)
+        .map(ticket => [...ticket.numbers, ticket.mega]);
+
+    if (validTickets.length === 0) {
+        alert("Please select at least one valid ticket.");
+        return;
+    }
+
+    try {
+        // Calculate total price
+        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
+        const totalPrice = BigInt(ticketPrice) * BigInt(validTickets.length);
+
+        // Approve contract to spend FROLL tokens
+        await frollContract.methods.approve(LOTTERY_CONTRACT_ADDRESS, totalPrice.toString()).send({ from: userAccount });
+
+        // Send transaction to buy tickets
+        await lotteryContract.methods.buyTicket(validTickets).send({ from: userAccount });
+
+        alert("Tickets purchased successfully!");
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        alert("Transaction failed. Please try again.");
+    }
+}
+
+// Event listener for buy button
+document.getElementById("buyButton").addEventListener("click", buyTickets);
