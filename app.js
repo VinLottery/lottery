@@ -11,16 +11,16 @@ document.addEventListener("DOMContentLoaded", async () => {
             const accounts = await window.ethereum.request({ method: 'eth_accounts' });
             if (accounts.length > 0) {
                 userAccount = accounts[0];
+                displayWalletInfo();
                 await initContracts();
                 await updateBalances();
-                displayWalletInfo();
+                await updateJackpot();
+                await updateLatestResults();
             }
         } catch (error) {
             console.error("Error checking accounts", error);
         }
     }
-    await updateJackpot();
-    await updateLatestResults();
 });
 
 async function connectWallet() {
@@ -30,8 +30,11 @@ async function connectWallet() {
         displayWalletInfo();
         await initContracts();
         await updateBalances();
+        await updateJackpot();
+        await updateLatestResults();
     } catch (error) {
-        console.error("User denied account access", error);
+        console.error("Error connecting wallet:", error);
+        alert("Failed to connect wallet. Please try again.");
     }
 }
 
@@ -43,96 +46,27 @@ async function initContracts() {
     lotteryContract = new web3.eth.Contract(abi, contractAddress);
     frollToken = new web3.eth.Contract(frollAbi, frollTokenAddress);
 }
-function createTicketUI() {
-    const ticketContainer = document.getElementById("ticketContainer");
-    ticketContainer.innerHTML = ""; // Xóa vé cũ nếu có
 
-    for (let i = 1; i <= 10; i++) {
-        const ticketDiv = document.createElement("div");
-        ticketDiv.classList.add("ticket");
-
-        let inputs = "";
-        for (let j = 1; j <= 5; j++) {
-            inputs += `<input type="number" id="num${i}_${j}" min="1" max="70" placeholder="${j}">`;
-        }
-        inputs += `<input type="number" id="megaBall${i}" min="1" max="25" placeholder="MB">`;
-
-        ticketDiv.innerHTML = `
-            <p>Ticket ${i}</p>
-            ${inputs}
-            <button onclick="quickPick(${i})">Quick</button>
-        `;
-        ticketContainer.appendChild(ticketDiv);
-    }
+async function updateBalances() {
+    if (!userAccount) return;
+    const bnbBalance = await web3.eth.getBalance(userAccount);
+    const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
+    document.getElementById("bnbBalance").innerText = web3.utils.fromWei(bnbBalance, "ether");
+    document.getElementById("frollBalance").innerText = web3.utils.fromWei(frollBalance, "ether");
 }
 
-function quickPick(ticketNumber) {
-    const selectedNumbers = new Set();
-    while (selectedNumbers.size < 5) {
-        selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
-    }
-    const selectedMegaBall = Math.floor(Math.random() * 25) + 1;
-
-    let index = 1;
-    selectedNumbers.forEach(num => {
-        document.getElementById(`num${ticketNumber}_${index}`).value = num;
-        index++;
-    });
-    document.getElementById(`megaBall${ticketNumber}`).value = selectedMegaBall;
-}
-
-document.getElementById("quickAll").addEventListener("click", () => {
-    for (let i = 1; i <= 10; i++) {
-        quickPick(i);
-    }
-});
-
-// Gọi tạo UI khi trang tải
-document.addEventListener("DOMContentLoaded", createTicketUI);
-async function buyTicket() {
-    if (!userAccount) {
-        alert("Please connect your wallet first!");
-        return;
-    }
-
-    let tickets = [];
-    for (let i = 1; i <= 10; i++) {
-        let ticket = [];
-        for (let j = 1; j <= 5; j++) {
-            const num = document.getElementById(`num${i}_${j}`).value;
-            if (!num) continue;
-            ticket.push(Number(num));
-        }
-        const megaBall = document.getElementById(`megaBall${i}`).value;
-        if (megaBall) ticket.push(Number(megaBall));
-        if (ticket.length === 6) tickets.push(ticket);
-    }
-
-    if (tickets.length === 0) {
-        alert("Please select at least one complete ticket.");
-        return;
-    }
-
+async function updateJackpot() {
+    if (!lotteryContract) return;
     try {
-        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
-        const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
-
-        // Approve FROLL token for transaction
-        await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
-
-        // Buy ticket
-        await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
-
-        alert("Ticket purchase successful!");
-        await updateBalances(); // Cập nhật số dư sau khi mua vé
+        const jackpot = await lotteryContract.methods.jackpotPool().call();
+        document.getElementById("jackpot").innerText = `Jackpot: ${web3.utils.fromWei(jackpot, "ether")} FROLL`;
     } catch (error) {
-        console.error("Transaction failed", error);
-        alert("Transaction failed. Please try again.");
+        console.error("Error fetching jackpot:", error);
     }
 }
 
-document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
 async function updateLatestResults() {
+    if (!lotteryContract) return;
     try {
         const result = await lotteryContract.methods.getLatestWinningNumbers().call();
         if (result[0].length > 0) {
@@ -141,32 +75,13 @@ async function updateLatestResults() {
             document.getElementById("winningNumbers").innerText = "No results available yet";
         }
     } catch (error) {
-        console.error("Error fetching latest results", error);
+        console.error("Error fetching latest results:", error);
     }
 }
 
-async function searchResultsByDate() {
-    const dateInput = document.getElementById("searchDate").value;
-    if (!dateInput) {
-        alert("Please select a date.");
-        return;
-    }
-
-    const timestamp = new Date(dateInput).setHours(0, 0, 0, 0) / 1000; // Convert to UNIX timestamp
-
-    try {
-        const result = await lotteryContract.methods.getWinningNumbersByDate(timestamp).call();
-        if (result[0].length > 0) {
-            document.getElementById("searchedResults").innerText = `Winning Numbers for ${dateInput}: ${result[0].join(", ")}`;
-        } else {
-            document.getElementById("searchedResults").innerText = `No results found for ${dateInput}`;
-        }
-    } catch (error) {
-        console.error("Error fetching results by date", error);
-    }
-}
-
+document.getElementById("connectWallet").addEventListener("click", connectWallet);
+document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
 document.getElementById("searchResults").addEventListener("click", searchResultsByDate);
 
-// Cập nhật kết quả mới nhất khi tải trang
+document.addEventListener("DOMContentLoaded", createTicketUI);
 document.addEventListener("DOMContentLoaded", updateLatestResults);
