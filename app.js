@@ -10,12 +10,16 @@ const buyTicketButton = document.getElementById('buyTicket');
 const claimPrizeButton = document.getElementById('claimPrize');
 const ticketInput = document.getElementById('ticketNumber');
 
-let web3;
+let provider;
+let signer;
+let userAccount;
 let lotteryContract;
 let frollTokenContract;
-let userAccount;
-const contractAddress = '0x7D77d1079370d2e77a339d92b6bDa291bAb2FBea';  // Địa chỉ hợp đồng FrollLottery
+
+// Địa chỉ hợp đồng và ABI
+const contractAddress = '0x7D77d1079370d2e77a339d92b6bDa291bAb2FBea'; // Địa chỉ hợp đồng FrollLottery
 const frollTokenAddress = '0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1'; // Địa chỉ token FROLL
+
 // ABI của hợp đồng FrollLottery
 const contractABI = [
     {"inputs":[{"internalType":"contract IERC20","name":"_frollToken","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
@@ -58,8 +62,10 @@ async function connectWallet() {
         try {
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = accounts[0];
-            web3 = new Web3(window.ethereum);
-            lotteryContract = new web3.eth.Contract(contractABI, contractAddress);
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            lotteryContract = new ethers.Contract(contractAddress, contractABI, signer);
+            frollTokenContract = new ethers.Contract(frollTokenAddress, frollTokenABI, signer);
             connectWalletButton.textContent = 'Wallet Connected';
             console.log('Account:', userAccount);
         } catch (err) {
@@ -71,15 +77,33 @@ async function connectWallet() {
 }
 
 async function buyTicket() {
-    const ticketNumber = ticketInput.value;
-    if (ticketNumber < 1 || ticketNumber > 70) {
-        alert('Please select a valid ticket number between 1 and 70!');
+    const ticketNumbers = [];
+    // Lấy các số vé từ input
+    for (let i = 1; i <= 5; i++) {
+        const ticket = document.getElementById(`ticket${i}`).value;
+        if (ticket >= 1 && ticket <= 70 && !ticketNumbers.includes(ticket)) {
+            ticketNumbers.push(ticket);
+        } else {
+            alert(`Please enter a valid number for ticket ${i}. Numbers must be between 1 and 70 and unique.`);
+            return;
+        }
+    }
+
+    const ticket6 = document.getElementById('ticket6').value;
+    if (ticket6 < 1 || ticket6 > 25) {
+        alert('Please enter a valid number for the last ticket (1-25).');
         return;
     }
 
-    const price = web3.utils.toWei('0.0001', 'ether'); // Giá vé
+    // Tính phí mua vé
+    const price = ethers.utils.parseUnits('0.0001', 'ether'); // Giá vé 0.0001 FROLL
+
     try {
-        await lotteryContract.methods.buyTicket(ticketNumber).send({ from: userAccount, value: price });
+        // Gửi giao dịch để mua vé
+        const tx = await lotteryContract.buyTicket(ticketNumbers.concat(ticket6), {
+            value: price
+        });
+        await tx.wait();
         alert('Ticket purchased successfully!');
     } catch (err) {
         console.error('Error buying ticket:', err);
@@ -88,18 +112,15 @@ async function buyTicket() {
 
 async function claimPrize() {
     try {
-        await lotteryContract.methods.claimPrize().send({ from: userAccount });
+        const tx = await lotteryContract.claimPrize();
+        await tx.wait();
         alert('Prize claimed successfully!');
     } catch (err) {
         console.error('Error claiming prize:', err);
     }
 }
 
-// Sự kiện kết nối ví Metamask
+// Lắng nghe các sự kiện
 connectWalletButton.addEventListener('click', connectWallet);
-
-// Sự kiện mua vé
 buyTicketButton.addEventListener('click', buyTicket);
-
-// Sự kiện rút thưởng
 claimPrizeButton.addEventListener('click', claimPrize);
