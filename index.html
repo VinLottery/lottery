@@ -3,37 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery VIN - Mega Millions</title>
+    <title>Lottery.vin - Mega Millions</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.2.0/web3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
 </head>
 <body>
-    <header>
-        <h1>🎟️ Lottery VIN - Mega Millions</h1>
-        <button id="connectWallet">🔗 Connect Wallet</button>
-        <p id="walletAddress">Wallet not connected</p>
-    </header>
-
+    <nav>
+        <h1>Lottery.vin</h1>
+        <p id="jackpot">Jackpot: Loading...</p>
+        <button id="connectWallet">Connect Wallet</button>
+    </nav>
+    
     <main>
-        <section id="buyTickets">
-            <h2>🛒 Buy Lottery Tickets</h2>
-            <div id="ticketGrid">
-                <!-- Tickets will be generated dynamically -->
-            </div>
-            <button id="quickAll">🎲 Quick Pick All (10 Tickets)</button>
-            <button id="buyButton">🛒 Purchase Tickets</button>
+        <section id="walletInfo">
+            <h2>Wallet Information</h2>
+            <p><strong>Address:</strong> <span id="walletAddress">Not connected</span></p>
+            <p><strong>BNB Balance:</strong> <span id="bnbBalance">0</span></p>
+            <p><strong>FROLL Balance:</strong> <span id="frollBalance">0</span></p>
         </section>
 
-        <section id="lotteryResults">
-            <h2>🏆 Lottery Results</h2>
-            <p id="latestResult">Loading latest results...</p>
-            <h3>Past Draw Results</h3>
+        <section id="buyTicket">
+            <h2>Buy Lottery Tickets</h2>
+            <div class="tickets">
+                <div class="ticket" id="ticketContainer"></div>
+            </div>
+            <button id="quickAll">Quick All</button>
+            <button id="buyTicketBtn">Buy Ticket</button>
+        </section>
+        
+        <section id="latestResults">
+            <h2>Latest Winning Numbers</h2>
+            <p id="winningNumbers">Loading...</p>
+            <label for="searchDate">Search by Date:</label>
             <input type="date" id="searchDate">
-            <button id="searchResult">🔍 Search</button>
-            <p id="historyResult">No data available</p>
+            <button id="searchResults">Search</button>
+            <p id="searchedResults"></p>
         </section>
     </main>
-
+    
     <script src="app.js"></script>
 </body>
 </html>
