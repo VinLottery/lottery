@@ -133,3 +133,47 @@ document.getElementById("quickAll").addEventListener("click", () => {
 
 // Gọi tạo UI khi trang tải
 document.addEventListener("DOMContentLoaded", createTicketUI);
+async function buyTicket() {
+    if (!userAccount) {
+        alert("Please connect your wallet first!");
+        return;
+    }
+
+    let tickets = [];
+    for (let i = 1; i <= 10; i++) {
+        let ticket = [];
+        for (let j = 1; j <= 5; j++) {
+            const num = document.getElementById(`num${i}_${j}`).value;
+            if (!num) continue;
+            ticket.push(Number(num));
+        }
+        const megaBall = document.getElementById(`megaBall${i}`).value;
+        if (megaBall) ticket.push(Number(megaBall));
+        if (ticket.length === 6) tickets.push(ticket);
+    }
+
+    if (tickets.length === 0) {
+        alert("Please select at least one complete ticket.");
+        return;
+    }
+
+    try {
+        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
+        const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
+
+        // Approve FROLL token for transaction
+        await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
+
+        // Buy ticket
+        await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
+
+        alert("Ticket purchase successful!");
+        await updateBalances(); // Cập nhật số dư sau khi mua vé
+    } catch (error) {
+        console.error("Transaction failed", error);
+        alert("Transaction failed. Please try again.");
+    }
+}
+
+// Gán sự kiện cho nút mua vé
+document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
