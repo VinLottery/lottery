@@ -235,7 +235,7 @@ async function fetchLatestResults() {
     try {
         const result = await lotteryContract.methods.getLatestWinningNumbers().call();
         
-        if (!result || result[0].length === 0) {
+        if (!result || !result[0] || result[0].length === 0) {
             document.getElementById("latestResult").textContent = "No recent draw results.";
             return;
         }
@@ -246,9 +246,10 @@ async function fetchLatestResults() {
         document.getElementById("latestResult").textContent = `Winning Numbers: ${numbers} | Block Hash: ${blockHash}`;
     } catch (error) {
         console.error("Failed to fetch latest results:", error);
-        document.getElementById("latestResult").textContent = "Failed to load results.";
+        document.getElementById("latestResult").textContent = "Error fetching results.";
     }
 }
+
 
 // Function to search past draw results by date
 async function searchResults() {
