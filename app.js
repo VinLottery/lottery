@@ -85,3 +85,51 @@ document.getElementById("searchResults").addEventListener("click", searchResults
 
 document.addEventListener("DOMContentLoaded", createTicketUI);
 document.addEventListener("DOMContentLoaded", updateLatestResults);
+function createTicketUI() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = ""; // Xóa vé cũ nếu có
+
+    for (let i = 1; i <= 10; i++) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.classList.add("ticket");
+
+        let inputs = "";
+        for (let j = 1; j <= 5; j++) {
+            inputs += `<input type="number" id="num${i}_${j}" min="1" max="70" placeholder="${j}">`;
+        }
+        inputs += `<input type="number" id="megaBall${i}" min="1" max="25" placeholder="MB">`;
+
+        ticketDiv.innerHTML = `
+            <p>Ticket ${i}</p>
+            ${inputs}
+            <button onclick="quickPick(${i})">Quick</button>
+        `;
+        ticketContainer.appendChild(ticketDiv);
+    }
+}
+
+// Quick Pick cho từng vé
+function quickPick(ticketNumber) {
+    const selectedNumbers = new Set();
+    while (selectedNumbers.size < 5) {
+        selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
+    }
+    const selectedMegaBall = Math.floor(Math.random() * 25) + 1;
+
+    let index = 1;
+    selectedNumbers.forEach(num => {
+        document.getElementById(`num${ticketNumber}_${index}`).value = num;
+        index++;
+    });
+    document.getElementById(`megaBall${ticketNumber}`).value = selectedMegaBall;
+}
+
+// Quick Pick cho tất cả 10 vé
+document.getElementById("quickAll").addEventListener("click", () => {
+    for (let i = 1; i <= 10; i++) {
+        quickPick(i);
+    }
+});
+
+// Gọi tạo UI khi trang tải
+document.addEventListener("DOMContentLoaded", createTicketUI);
