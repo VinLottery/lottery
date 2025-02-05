@@ -81,7 +81,9 @@ function generateTickets() {
             const numberBtn = document.createElement("button");
             numberBtn.textContent = j;
             numberBtn.classList.add("number");
-            numberBtn.onclick = () => selectNumber(i, j, false);
+            numberBtn.dataset.ticket = i;
+            numberBtn.dataset.num = j;
+            numberBtn.onclick = (e) => selectNumber(e);
             numbersDiv.appendChild(numberBtn);
         }
 
@@ -91,8 +93,10 @@ function generateTickets() {
         for (let j = 1; j <= 25; j++) {
             const numberBtn = document.createElement("button");
             numberBtn.textContent = j;
-            numberBtn.classList.add("number mega");
-            numberBtn.onclick = () => selectNumber(i, j, true);
+            numberBtn.classList.add("number", "mega");
+            numberBtn.dataset.ticket = i;
+            numberBtn.dataset.num = j;
+            numberBtn.onclick = (e) => selectNumber(e, true);
             megaBallDiv.appendChild(numberBtn);
         }
 
@@ -108,10 +112,14 @@ function generateTickets() {
     }
 }
 
-// Function to handle selecting numbers
+// Array to track selected numbers
 let selectedNumbers = Array(10).fill().map(() => ({ numbers: [], mega: null }));
 
-function selectNumber(ticketIndex, number, isMega) {
+// Function to handle selecting numbers
+function selectNumber(event, isMega = false) {
+    const ticketIndex = parseInt(event.target.dataset.ticket);
+    const number = parseInt(event.target.dataset.num);
+
     if (isMega) {
         selectedNumbers[ticketIndex].mega = number;
     } else {
@@ -173,6 +181,7 @@ document.getElementById("quickAll").addEventListener("click", quickPickAll);
 
 // Generate tickets on page load
 generateTickets();
+
 // Function to buy tickets
 async function buyTickets() {
     if (!userAccount) {
