@@ -179,3 +179,47 @@ async function buyTickets() {
 
 // Event listener for buy button
 document.getElementById("buyButton").addEventListener("click", buyTickets);
+// Function to get the latest winning numbers
+async function fetchLatestResults() {
+    try {
+        const result = await lotteryContract.methods.getLatestWinningNumbers().call();
+        const numbers = result[0].map(num => num.toString()).join(" - ");
+        const blockHash = result[1];
+
+        document.getElementById("latestResult").textContent = `Winning Numbers: ${numbers} | Block Hash: ${blockHash}`;
+    } catch (error) {
+        console.error("Failed to fetch latest results:", error);
+        document.getElementById("latestResult").textContent = "Failed to load results.";
+    }
+}
+
+// Function to search past draw results by date
+async function searchResults() {
+    const dateInput = document.getElementById("searchDate").value;
+    if (!dateInput) {
+        alert("Please select a date.");
+        return;
+    }
+
+    try {
+        const timestamp = new Date(dateInput).setHours(0, 0, 0, 0) / 1000;
+        const result = await lotteryContract.methods.getWinningNumbersByDate(timestamp).call();
+
+        if (result[1] === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+            document.getElementById("historyResult").textContent = "No results found for this date.";
+        } else {
+            const numbers = result[0].map(num => num.toString()).join(" - ");
+            const blockHash = result[1];
+            document.getElementById("historyResult").textContent = `Winning Numbers: ${numbers} | Block Hash: ${blockHash}`;
+        }
+    } catch (error) {
+        console.error("Failed to fetch historical results:", error);
+        document.getElementById("historyResult").textContent = "Error fetching results.";
+    }
+}
+
+// Event listener for result search
+document.getElementById("searchResult").addEventListener("click", searchResults);
+
+// Fetch latest results on page load
+fetchLatestResults();
