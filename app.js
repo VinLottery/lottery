@@ -30,3 +30,115 @@ async function connectWallet() {
 
 // Event listener for wallet connection button
 document.getElementById("connectWallet").addEventListener("click", connectWallet);
+// Initialize contract instances
+const frollContract = new web3.eth.Contract(FROLL_ABI, FROLL_TOKEN_ADDRESS);
+const lotteryContract = new web3.eth.Contract(LOTTERY_ABI, LOTTERY_CONTRACT_ADDRESS);
+
+// Function to generate ticket selection UI
+function generateTickets() {
+    const ticketGrid = document.getElementById("ticketGrid");
+    ticketGrid.innerHTML = "";
+    
+    for (let i = 0; i < 10; i++) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.classList.add("ticket");
+
+        const numbersDiv = document.createElement("div");
+        numbersDiv.classList.add("numbers");
+
+        for (let j = 1; j <= 70; j++) {
+            const numberBtn = document.createElement("button");
+            numberBtn.textContent = j;
+            numberBtn.classList.add("number");
+            numberBtn.onclick = () => selectNumber(i, j, false);
+            numbersDiv.appendChild(numberBtn);
+        }
+
+        const megaBallDiv = document.createElement("div");
+        megaBallDiv.classList.add("megaBall");
+
+        for (let j = 1; j <= 25; j++) {
+            const numberBtn = document.createElement("button");
+            numberBtn.textContent = j;
+            numberBtn.classList.add("number mega");
+            numberBtn.onclick = () => selectNumber(i, j, true);
+            megaBallDiv.appendChild(numberBtn);
+        }
+
+        const quickPickBtn = document.createElement("button");
+        quickPickBtn.textContent = "🎲 Quick Pick";
+        quickPickBtn.onclick = () => quickPickTicket(i);
+
+        ticketDiv.appendChild(numbersDiv);
+        ticketDiv.appendChild(megaBallDiv);
+        ticketDiv.appendChild(quickPickBtn);
+
+        ticketGrid.appendChild(ticketDiv);
+    }
+}
+
+// Function to handle selecting numbers
+let selectedNumbers = Array(10).fill().map(() => ({ numbers: [], mega: null }));
+
+function selectNumber(ticketIndex, number, isMega) {
+    if (isMega) {
+        selectedNumbers[ticketIndex].mega = number;
+    } else {
+        if (selectedNumbers[ticketIndex].numbers.includes(number)) {
+            selectedNumbers[ticketIndex].numbers = selectedNumbers[ticketIndex].numbers.filter(n => n !== number);
+        } else if (selectedNumbers[ticketIndex].numbers.length < 5) {
+            selectedNumbers[ticketIndex].numbers.push(number);
+        }
+    }
+    updateTicketUI(ticketIndex);
+}
+
+// Function to update UI after selecting numbers
+function updateTicketUI(ticketIndex) {
+    const ticketDivs = document.querySelectorAll(".ticket");
+    const ticketDiv = ticketDivs[ticketIndex];
+
+    ticketDiv.querySelectorAll(".number").forEach(button => {
+        const num = parseInt(button.textContent);
+        if (selectedNumbers[ticketIndex].numbers.includes(num)) {
+            button.classList.add("selected");
+        } else {
+            button.classList.remove("selected");
+        }
+    });
+
+    ticketDiv.querySelectorAll(".number.mega").forEach(button => {
+        const num = parseInt(button.textContent);
+        if (selectedNumbers[ticketIndex].mega === num) {
+            button.classList.add("selected");
+        } else {
+            button.classList.remove("selected");
+        }
+    });
+}
+
+// Function to quick pick a single ticket
+function quickPickTicket(ticketIndex) {
+    selectedNumbers[ticketIndex].numbers = [];
+    while (selectedNumbers[ticketIndex].numbers.length < 5) {
+        let randNum = Math.floor(Math.random() * 70) + 1;
+        if (!selectedNumbers[ticketIndex].numbers.includes(randNum)) {
+            selectedNumbers[ticketIndex].numbers.push(randNum);
+        }
+    }
+    selectedNumbers[ticketIndex].mega = Math.floor(Math.random() * 25) + 1;
+    updateTicketUI(ticketIndex);
+}
+
+// Function to quick pick all tickets
+function quickPickAll() {
+    for (let i = 0; i < 10; i++) {
+        quickPickTicket(i);
+    }
+}
+
+// Event listener for quick pick all button
+document.getElementById("quickAll").addEventListener("click", quickPickAll);
+
+// Generate tickets on page load
+generateTickets();
