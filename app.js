@@ -234,6 +234,12 @@ document.getElementById("buyButton").addEventListener("click", buyTickets);
 async function fetchLatestResults() {
     try {
         const result = await lotteryContract.methods.getLatestWinningNumbers().call();
+        
+        if (!result || result[0].length === 0) {
+            document.getElementById("latestResult").textContent = "No recent draw results.";
+            return;
+        }
+
         const numbers = result[0].map(num => num.toString()).join(" - ");
         const blockHash = result[1];
 
@@ -253,10 +259,10 @@ async function searchResults() {
     }
 
     try {
-        const timestamp = new Date(dateInput).setHours(0, 0, 0, 0) / 1000;
+        const timestamp = Math.floor(new Date(dateInput).setHours(0, 0, 0, 0) / 1000);
         const result = await lotteryContract.methods.getWinningNumbersByDate(timestamp).call();
 
-        if (result[1] === "0x0000000000000000000000000000000000000000000000000000000000000000") {
+        if (!result || result[1] === "0x0000000000000000000000000000000000000000000000000000000000000000") {
             document.getElementById("historyResult").textContent = "No results found for this date.";
         } else {
             const numbers = result[0].map(num => num.toString()).join(" - ");
@@ -274,6 +280,7 @@ document.getElementById("searchResult").addEventListener("click", searchResults)
 
 // Fetch latest results on page load
 fetchLatestResults();
+
 // Auto-refresh latest results every 30 seconds
 setInterval(fetchLatestResults, 30000);
 
