@@ -1,1 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Froll Lottery - Blockchain Lottery</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js"></script>
+    <script defer src="app.js"></script>
+</head>
+<body>
+    <header>
+        <h1>🎟️ Froll Lottery - Blockchain Lottery 🎟️</h1>
+        <button id="connectWallet">Connect Wallet</button>
+    </header>
+    
+    <main>
+        <section id="ticketSection">
+            <h2>Buy Lottery Ticket</h2>
+            <p>Each ticket costs <strong>0.0001 FROLL</strong></p>
+            <label for="ticketNumber">Select a number (1-70):</label>
+            <input type="number" id="ticketNumber" min="1" max="70">
+            <button id="buyTicket">Buy Ticket</button>
+        </section>
 
+        <section id="resultSection">
+            <h2>Lottery Results</h2>
+            <p id="drawTime">Next draw: Loading...</p>
+            <p id="winningNumber">Winning number: Loading...</p>
+        </section>
+
+        <section id="claimSection">
+            <h2>Claim Your Prize</h2>
+            <p>If you are a winner, withdraw your prize here!</p>
+            <button id="claimPrize">Claim Prize</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2025 Froll Lottery - Fair and Transparent Blockchain Lottery</p>
+    </footer>
+</body>
+</html>
