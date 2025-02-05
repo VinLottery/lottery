@@ -26,7 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ABI của token FROLL
     const frollTokenABI = [
         {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-        {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}
+        {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+        {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}
     ];
 
     // **Kết nối ví Metamask**
@@ -71,56 +72,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // **Mua vé xổ số**
     async function buyTicket() {
-    if (!userAccount) {
-        alert("Please connect your wallet first!");
-        return;
-    }
-
-    // Lấy số vé người dùng chọn
-    const ticketNumbers = [];
-    for (let i = 1; i <= 5; i++) {
-        const ticket = parseInt(document.getElementById(`ticket${i}`).value);
-        if (ticket >= 1 && ticket <= 70 && !ticketNumbers.includes(ticket)) {
-            ticketNumbers.push(ticket);
-        } else {
-            alert(`Invalid number for ticket ${i}. Must be between 1-70 and unique.`);
+        if (!userAccount) {
+            alert("Please connect your wallet first!");
             return;
         }
-    }
 
-    const ticket6 = parseInt(document.getElementById('ticket6').value);
-    if (ticket6 < 1 || ticket6 > 25) {
-        alert("Invalid last ticket number. Must be between 1-25.");
-        return;
-    }
-    ticketNumbers.push(ticket6);
-
-    const ticketPrice = ethers.utils.parseUnits("0.0001", "ether"); 
-    const approveAmount = ethers.utils.parseUnits("100", "ether"); // Cấp quyền 100 FROLL để tránh approve nhiều lần
-
-    try {
-        // Kiểm tra nếu hợp đồng đã được approve trước đó
-        const allowance = await frollTokenContract.allowance(userAccount, contractAddress);
-        if (allowance.lt(ticketPrice)) {
-            console.log("Approving FROLL for contract...");
-            const approveTx = await frollTokenContract.approve(contractAddress, approveAmount);
-            await approveTx.wait();
+        // Lấy số vé người dùng chọn
+        const ticketNumbers = [];
+        for (let i = 1; i <= 5; i++) {
+            const ticket = parseInt(document.getElementById(`ticket${i}`).value);
+            if (ticket >= 1 && ticket <= 70 && !ticketNumbers.includes(ticket)) {
+                ticketNumbers.push(ticket);
+            } else {
+                alert(`Invalid number for ticket ${i}. Must be between 1-70 and unique.`);
+                return;
+            }
         }
 
-        console.log("Buying ticket...");
-        const tx = await lotteryContract.buyTicket(ticketNumbers);
-        await tx.wait();
+        const ticket6 = parseInt(document.getElementById('ticket6').value);
+        if (ticket6 < 1 || ticket6 > 25) {
+            alert("Invalid last ticket number. Must be between 1-25.");
+            return;
+        }
+        ticketNumbers.push(ticket6);
 
-        alert("Ticket purchased successfully!");
-        await updateBalances(); // Cập nhật số dư sau khi mua vé
-    } catch (error) {
-        console.error("Error buying ticket:", error);
-        alert("Transaction failed! Check console for details.");
+        const ticketPrice = ethers.utils.parseUnits("0.0001", "ether"); 
+        const approveAmount = ethers.utils.parseUnits("100", "ether"); // Cấp quyền 100 FROLL để tránh approve nhiều lần
+
+        try {
+            // Kiểm tra nếu hợp đồng đã được approve trước đó
+            const allowance = await frollTokenContract.allowance(userAccount, contractAddress);
+            if (allowance.lt(ticketPrice)) {
+                console.log("Approving FROLL for contract...");
+                const approveTx = await frollTokenContract.approve(contractAddress, approveAmount);
+                await approveTx.wait();
+            }
+
+            console.log("Buying ticket...");
+            const tx = await lotteryContract.buyTicket(ticketNumbers);
+            await tx.wait();
+
+            alert("Ticket purchased successfully!");
+            await updateBalances();
+        } catch (error) {
+            console.error("Error buying ticket:", error);
+            alert("Transaction failed! Check console for details.");
+        }
     }
-}
-
-// Lắng nghe sự kiện bấm nút mua vé
-buyTicketButton.addEventListener("click", buyTicket);
 
     // **Rút thưởng nếu trúng số**
     async function claimPrize() {
