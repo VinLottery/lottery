@@ -4,44 +4,97 @@ const abi = [{"inputs":[{"internalType":"contract IERC20","name":"_frollToken","
 const frollAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]; // ABI của token FROLL
 
 let web3, lotteryContract, frollToken, userAccount;
-
-async function connectWallet() {
+document.addEventListener("DOMContentLoaded", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            userAccount = accounts[0];
-            document.getElementById("connectWallet").innerText = userAccount.substring(0, 6) + "..." + userAccount.slice(-4);
-            await initContracts();
-            await updateBalances();
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+                userAccount = accounts[0];
+                await initContracts();
+                await updateBalances();
+                displayWalletInfo();
+            }
         } catch (error) {
-            console.error("User denied account access", error);
+            console.error("Error checking accounts", error);
         }
-    } else {
-        alert("Please install MetaMask!");
     }
+    await updateJackpot();
+    await updateLatestResults();
+});
+
+async function connectWallet() {
+    try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        userAccount = accounts[0];
+        displayWalletInfo();
+        await initContracts();
+        await updateBalances();
+    } catch (error) {
+        console.error("User denied account access", error);
+    }
+}
+
+function displayWalletInfo() {
+    document.getElementById("walletAddress").innerText = userAccount || "Not connected";
 }
 
 async function initContracts() {
     lotteryContract = new web3.eth.Contract(abi, contractAddress);
     frollToken = new web3.eth.Contract(frollAbi, frollTokenAddress);
-    await updateJackpot();
-    await updateLatestResults();
+}
+function createTicketUI() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = ""; // Xóa vé cũ nếu có
+
+    for (let i = 1; i <= 10; i++) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.classList.add("ticket");
+
+        let inputs = "";
+        for (let j = 1; j <= 5; j++) {
+            inputs += `<input type="number" id="num${i}_${j}" min="1" max="70" placeholder="${j}">`;
+        }
+        inputs += `<input type="number" id="megaBall${i}" min="1" max="25" placeholder="MB">`;
+
+        ticketDiv.innerHTML = `
+            <p>Ticket ${i}</p>
+            ${inputs}
+            <button onclick="quickPick(${i})">Quick</button>
+        `;
+        ticketContainer.appendChild(ticketDiv);
+    }
 }
 
-async function updateBalances() {
-    if (!userAccount) return;
-    const bnbBalance = await web3.eth.getBalance(userAccount);
-    const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
-    document.getElementById("jackpot").innerText = `BNB: ${web3.utils.fromWei(bnbBalance, "ether")}, FROLL: ${web3.utils.fromWei(frollBalance, "ether")}`;
+function quickPick(ticketNumber) {
+    const selectedNumbers = new Set();
+    while (selectedNumbers.size < 5) {
+        selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
+    }
+    const selectedMegaBall = Math.floor(Math.random() * 25) + 1;
+
+    let index = 1;
+    selectedNumbers.forEach(num => {
+        document.getElementById(`num${ticketNumber}_${index}`).value = num;
+        index++;
+    });
+    document.getElementById(`megaBall${ticketNumber}`).value = selectedMegaBall;
 }
 
-async function updateJackpot() {
-    const jackpot = await lotteryContract.methods.jackpotPool().call();
-    document.getElementById("jackpot").innerText = `Jackpot: ${web3.utils.fromWei(jackpot, "ether")} FROLL`;
-}
+document.getElementById("quickAll").addEventListener("click", () => {
+    for (let i = 1; i <= 10; i++) {
+        quickPick(i);
+    }
+});
 
+// Gọi tạo UI khi trang tải
+document.addEventListener("DOMContentLoaded", createTicketUI);
 async function buyTicket() {
+    if (!userAccount) {
+        alert("Please connect your wallet first!");
+        return;
+    }
+
     let tickets = [];
     for (let i = 1; i <= 10; i++) {
         let ticket = [];
@@ -54,24 +107,66 @@ async function buyTicket() {
         if (megaBall) ticket.push(Number(megaBall));
         if (ticket.length === 6) tickets.push(ticket);
     }
-    if (tickets.length === 0) return alert("Please select at least one ticket");
-    
-    const ticketPrice = await lotteryContract.methods.ticketPrice().call();
-    const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
-    
+
+    if (tickets.length === 0) {
+        alert("Please select at least one complete ticket.");
+        return;
+    }
+
     try {
+        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
+        const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
+
+        // Approve FROLL token for transaction
         await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
+
+        // Buy ticket
         await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
+
+        alert("Ticket purchase successful!");
+        await updateBalances(); // Cập nhật số dư sau khi mua vé
     } catch (error) {
         console.error("Transaction failed", error);
         alert("Transaction failed. Please try again.");
     }
 }
 
+document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
 async function updateLatestResults() {
-    const result = await lotteryContract.methods.getLatestWinningNumbers().call();
-    document.getElementById("winningNumbers").innerText = `Winning Numbers: ${result[0].join(", ")}`;
+    try {
+        const result = await lotteryContract.methods.getLatestWinningNumbers().call();
+        if (result[0].length > 0) {
+            document.getElementById("winningNumbers").innerText = `Winning Numbers: ${result[0].join(", ")}`;
+        } else {
+            document.getElementById("winningNumbers").innerText = "No results available yet";
+        }
+    } catch (error) {
+        console.error("Error fetching latest results", error);
+    }
 }
 
-document.getElementById("connectWallet").addEventListener("click", connectWallet);
-document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
+async function searchResultsByDate() {
+    const dateInput = document.getElementById("searchDate").value;
+    if (!dateInput) {
+        alert("Please select a date.");
+        return;
+    }
+
+    const timestamp = new Date(dateInput).setHours(0, 0, 0, 0) / 1000; // Convert to UNIX timestamp
+
+    try {
+        const result = await lotteryContract.methods.getWinningNumbersByDate(timestamp).call();
+        if (result[0].length > 0) {
+            document.getElementById("searchedResults").innerText = `Winning Numbers for ${dateInput}: ${result[0].join(", ")}`;
+        } else {
+            document.getElementById("searchedResults").innerText = `No results found for ${dateInput}`;
+        }
+    } catch (error) {
+        console.error("Error fetching results by date", error);
+    }
+}
+
+document.getElementById("searchResults").addEventListener("click", searchResultsByDate);
+
+// Cập nhật kết quả mới nhất khi tải trang
+document.addEventListener("DOMContentLoaded", updateLatestResults);
