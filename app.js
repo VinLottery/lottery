@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let provider, signer, userAccount, lotteryContract, frollTokenContract;
 
     // Địa chỉ hợp đồng
-    const contractAddress = '0x7D77d1079370d2e77a339d92b6bDa291bAb2FBea'; // Hợp đồng xổ số
+    const contractAddress = '0xFF11f688143860bf495971d0720d8e55d93A3600'; // Hợp đồng xổ số
     const frollTokenAddress = '0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1'; // Token FROLL
 
     // ABI của hợp đồng xổ số
