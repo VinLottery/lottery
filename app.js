@@ -223,3 +223,22 @@ document.getElementById("searchResult").addEventListener("click", searchResults)
 
 // Fetch latest results on page load
 fetchLatestResults();
+// Auto-refresh latest results every 30 seconds
+setInterval(fetchLatestResults, 30000);
+
+// Auto-update wallet address if user switches account
+if (window.ethereum) {
+    window.ethereum.on("accountsChanged", (accounts) => {
+        userAccount = accounts[0];
+        document.getElementById("walletAddress").textContent = `Connected: ${userAccount}`;
+    });
+
+    window.ethereum.on("chainChanged", () => {
+        window.location.reload();
+    });
+}
+
+// Display loading message if no wallet is connected
+if (!window.ethereum) {
+    document.getElementById("walletAddress").textContent = "No wallet detected. Please install MetaMask.";
+}
