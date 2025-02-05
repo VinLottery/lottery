@@ -177,3 +177,53 @@ async function buyTicket() {
 
 // Gán sự kiện cho nút mua vé
 document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
+async function updateJackpot() {
+    if (!lotteryContract) return;
+    try {
+        const jackpot = await lotteryContract.methods.jackpotPool().call();
+        document.getElementById("jackpot").innerText = `Jackpot: ${web3.utils.fromWei(jackpot, "ether")} FROLL`;
+    } catch (error) {
+        console.error("Error fetching jackpot:", error);
+    }
+}
+
+async function updateLatestResults() {
+    try {
+        const result = await lotteryContract.methods.getLatestWinningNumbers().call();
+        if (result[0].length > 0) {
+            document.getElementById("winningNumbers").innerText = `Winning Numbers: ${result[0].join(", ")}`;
+        } else {
+            document.getElementById("winningNumbers").innerText = "No results available yet";
+        }
+    } catch (error) {
+        console.error("Error fetching latest results", error);
+    }
+}
+
+async function searchResultsByDate() {
+    const dateInput = document.getElementById("searchDate").value;
+    if (!dateInput) {
+        alert("Please select a date.");
+        return;
+    }
+
+    const timestamp = new Date(dateInput).setHours(0, 0, 0, 0) / 1000; // Convert to UNIX timestamp
+
+    try {
+        const result = await lotteryContract.methods.getWinningNumbersByDate(timestamp).call();
+        if (result[0].length > 0) {
+            document.getElementById("searchedResults").innerText = `Winning Numbers for ${dateInput}: ${result[0].join(", ")}`;
+        } else {
+            document.getElementById("searchedResults").innerText = `No results found for ${dateInput}`;
+        }
+    } catch (error) {
+        console.error("Error fetching results by date", error);
+    }
+}
+
+// Gán sự kiện cho tra cứu kết quả theo ngày
+document.getElementById("searchResults").addEventListener("click", searchResultsByDate);
+
+// Cập nhật jackpot và kết quả mới nhất khi tải trang
+document.addEventListener("DOMContentLoaded", updateJackpot);
+document.addEventListener("DOMContentLoaded", updateLatestResults);
