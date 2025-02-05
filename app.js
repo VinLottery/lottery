@@ -4,7 +4,6 @@ const abi = [{"inputs":[{"internalType":"contract IERC20","name":"_frollToken","
 const frollAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}];
 
 let web3, lotteryContract, frollToken, userAccount;
-
 async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -12,10 +11,10 @@ async function connectWallet() {
             const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
             userAccount = accounts[0];
             document.getElementById("connectWallet").innerText = userAccount.substring(0, 6) + "..." + userAccount.slice(-4);
-            initContracts();
-            updateBalances();
+            await initContracts();
+            await updateBalances();
         } catch (error) {
-            console.error("User denied account access");
+            console.error("User denied account access", error);
         }
     } else {
         alert("Please install MetaMask!");
@@ -25,11 +24,12 @@ async function connectWallet() {
 async function initContracts() {
     lotteryContract = new web3.eth.Contract(abi, contractAddress);
     frollToken = new web3.eth.Contract(frollAbi, frollTokenAddress);
-    updateJackpot();
-    updateLatestResults();
+    await updateJackpot();
+    await updateLatestResults();
 }
 
 async function updateBalances() {
+    if (!userAccount) return;
     const bnbBalance = await web3.eth.getBalance(userAccount);
     const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
     document.getElementById("jackpot").innerText = `BNB: ${web3.utils.fromWei(bnbBalance, "ether")}, FROLL: ${web3.utils.fromWei(frollBalance, "ether")}`;
@@ -45,17 +45,26 @@ async function buyTicket() {
     for (let i = 1; i <= 10; i++) {
         let ticket = [];
         for (let j = 1; j <= 5; j++) {
-            ticket.push(document.getElementById(`num${i}_${j}`).value);
+            const num = document.getElementById(`num${i}_${j}`).value;
+            if (!num) continue;
+            ticket.push(Number(num));
         }
-        ticket.push(document.getElementById(`megaBall${i}`).value);
-        tickets.push(ticket.map(Number));
+        const megaBall = document.getElementById(`megaBall${i}`).value;
+        if (megaBall) ticket.push(Number(megaBall));
+        if (ticket.length === 6) tickets.push(ticket);
     }
+    if (tickets.length === 0) return alert("Please select at least one ticket");
     
     const ticketPrice = await lotteryContract.methods.ticketPrice().call();
     const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
     
-    await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
-    await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
+    try {
+        await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
+        await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
+    } catch (error) {
+        console.error("Transaction failed", error);
+        alert("Transaction failed. Please try again.");
+    }
 }
 
 async function updateLatestResults() {
