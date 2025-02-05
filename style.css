@@ -54,6 +54,21 @@ input[type="number"] {
     justify-content: center;
 }
 
+.ticket {
+    background: #ffffff;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.tickets {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 #latestResults {
     margin-top: 20px;
     font-size: 18px;
