@@ -81,20 +81,27 @@ button:hover {
 }
 
 /* Number Selection */
+.numbers, .megaBall {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
 .number {
     color: black;
     font-weight: bold;
     font-size: 16px;
     background-color: white;
     border: 1px solid #007bff;
-    padding: 8px 10px;
-    margin: 3px;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
     border-radius: 5px;
     cursor: pointer;
     display: inline-block;
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
 }
 
 .number:hover {
@@ -135,9 +142,8 @@ button:hover {
     }
 
     .number {
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
+        width: 25px;
+        height: 25px;
         font-size: 14px;
     }
 }
