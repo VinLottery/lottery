@@ -200,18 +200,27 @@ async function buyTickets() {
     }
 
     try {
-        // Calculate total price
+        // Fetch ticket price from contract
         const ticketPrice = await lotteryContract.methods.ticketPrice().call();
         const totalPrice = BigInt(ticketPrice) * BigInt(validTickets.length);
 
         // Approve contract to spend FROLL tokens
         await frollContract.methods.approve(LOTTERY_CONTRACT_ADDRESS, totalPrice.toString()).send({ from: userAccount });
 
-        // Send transaction to buy tickets
-        await lotteryContract.methods.buyTicket(validTickets).send({ from: userAccount });
+        // Wait for approval to complete before purchasing
+        frollContract.events.Approval({ filter: { owner: userAccount } }, async (error, event) => {
+            if (error) {
+                console.error("Approval failed:", error);
+                return;
+            }
+            console.log("Approval successful:", event);
+            
+            // Send transaction to buy tickets
+            await lotteryContract.methods.buyTicket(validTickets).send({ from: userAccount });
 
-        alert("Tickets purchased successfully!");
-        updateBalances(); // Refresh balances after purchase
+            alert("Tickets purchased successfully!");
+            updateBalances(); // Refresh balances after purchase
+        });
     } catch (error) {
         console.error("Transaction failed:", error);
         alert("Transaction failed. Please try again.");
@@ -220,6 +229,7 @@ async function buyTickets() {
 
 // Event listener for buy button
 document.getElementById("buyButton").addEventListener("click", buyTickets);
+
 // Function to get the latest winning numbers
 async function fetchLatestResults() {
     try {
