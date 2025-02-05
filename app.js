@@ -11,8 +11,28 @@ const LOTTERY_ABI = [[{"inputs":[{"internalType":"contract IERC20","name":"_frol
 
 let web3;
 let userAccount;
+// Function to update BNB & FROLL balances
+async function updateBalances() {
+    if (!userAccount) return;
 
-// Initialize Web3 and connect to wallet
+    try {
+        // Get BNB balance
+        const bnbBalance = await web3.eth.getBalance(userAccount);
+        const formattedBNB = web3.utils.fromWei(bnbBalance, "ether");
+
+        // Get FROLL balance
+        const frollBalance = await frollContract.methods.balanceOf(userAccount).call();
+        const formattedFROLL = web3.utils.fromWei(frollBalance, "ether");
+
+        // Display balances
+        document.getElementById("walletAddress").textContent = 
+            `Connected: ${userAccount} | BNB: ${formattedBNB} | FROLL: ${formattedFROLL}`;
+    } catch (error) {
+        console.error("Failed to fetch balances:", error);
+    }
+}
+
+// Function to connect MetaMask wallet
 async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -20,6 +40,13 @@ async function connectWallet() {
             const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             userAccount = accounts[0];
             document.getElementById("walletAddress").textContent = `Connected: ${userAccount}`;
+
+            // Initialize contract instances
+            window.frollContract = new web3.eth.Contract(FROLL_ABI, FROLL_TOKEN_ADDRESS);
+            window.lotteryContract = new web3.eth.Contract(LOTTERY_ABI, LOTTERY_CONTRACT_ADDRESS);
+
+            // Update balances after connecting
+            updateBalances();
         } catch (error) {
             console.error("Wallet connection failed", error);
         }
@@ -28,12 +55,16 @@ async function connectWallet() {
     }
 }
 
+// Auto-update balances if user switches accounts
+if (window.ethereum) {
+    window.ethereum.on("accountsChanged", (accounts) => {
+        userAccount = accounts[0];
+        updateBalances();
+    });
+}
+
 // Event listener for wallet connection button
 document.getElementById("connectWallet").addEventListener("click", connectWallet);
-// Initialize contract instances
-const frollContract = new web3.eth.Contract(FROLL_ABI, FROLL_TOKEN_ADDRESS);
-const lotteryContract = new web3.eth.Contract(LOTTERY_ABI, LOTTERY_CONTRACT_ADDRESS);
-
 // Function to generate ticket selection UI
 function generateTickets() {
     const ticketGrid = document.getElementById("ticketGrid");
@@ -171,6 +202,7 @@ async function buyTickets() {
         await lotteryContract.methods.buyTicket(validTickets).send({ from: userAccount });
 
         alert("Tickets purchased successfully!");
+        updateBalances(); // Refresh balances after purchase
     } catch (error) {
         console.error("Transaction failed:", error);
         alert("Transaction failed. Please try again.");
@@ -226,11 +258,11 @@ fetchLatestResults();
 // Auto-refresh latest results every 30 seconds
 setInterval(fetchLatestResults, 30000);
 
-// Auto-update wallet address if user switches account
+// Auto-update wallet address & balances if user switches account
 if (window.ethereum) {
     window.ethereum.on("accountsChanged", (accounts) => {
         userAccount = accounts[0];
-        document.getElementById("walletAddress").textContent = `Connected: ${userAccount}`;
+        updateBalances();
     });
 
     window.ethereum.on("chainChanged", () => {
