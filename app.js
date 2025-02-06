@@ -18,11 +18,6 @@ const lotteryABI = [
     {
         "inputs": [{"internalType": "uint256[6][]", "name": "ticketSets", "type": "uint256[6][]"}],
         "name": "buyTicket", "outputs": [], "stateMutability": "nonpayable", "type": "function"
-    },
-    {
-        "inputs": [], "name": "lastDrawTimestamp",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view", "type": "function"
     }
 ];
 
@@ -66,7 +61,6 @@ function initContracts() {
 
     loadJackpotData();
     loadUserBalance();
-    loadUserTickets();
 }
 
 // Hiển thị số dư ví (FROLL & BNB)
@@ -87,30 +81,65 @@ async function loadJackpotData() {
     try {
         const jackpotBalance = await frollToken.balanceOf(lotteryContractAddress);
         document.getElementById("jackpotAmount").innerText = `${ethers.utils.formatEther(jackpotBalance)} FROLL`;
-
-        const lastDrawTimestamp = await lotteryContract.lastDrawTimestamp();
-        const lastDrawTime = lastDrawTimestamp.toNumber();
-
-        if (lastDrawTime === 0) {
-            document.getElementById("nextDrawTime").innerText = "Pending...";
-        } else {
-            const nextDraw = new Date((lastDrawTime + 86400) * 1000);
-            document.getElementById("nextDrawTime").innerText = nextDraw.toUTCString();
-        }
-
-        startCountdown();
     } catch (error) {
         console.error("Error fetching jackpot:", error);
         document.getElementById("jackpotAmount").innerText = "Error loading jackpot";
-        document.getElementById("nextDrawTime").innerText = "Error loading draw time";
     }
 }
 
-// Chuẩn hóa vé số theo định dạng dễ đọc
-function formatTickets(tickets) {
-    return tickets.map((ticket, index) => {
-        return `${index + 1}#: ${ticket.slice(0, 5).join(",")};${ticket[5]}`;
-    }).join("\n");
+// Mở modal chọn vé
+function openTicketModal() {
+    document.getElementById("ticketModal").style.display = "block";
+    generateTicketSelection();
+}
+
+// Đóng modal
+function closeTicketModal() {
+    document.getElementById("ticketModal").style.display = "none";
+}
+
+// Tạo giao diện chọn vé số
+function generateTicketSelection() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = "";
+
+    for (let i = 0; i < 5; i++) {
+        const div = document.createElement("div");
+        div.classList.add("ticket");
+
+        let numbers = [];
+        for (let j = 0; j < 5; j++) {
+            numbers.push(createNumberInput(1, 70));
+        }
+        numbers.push(createNumberInput(1, 25, true));
+
+        numbers.forEach(num => div.appendChild(num));
+        ticketContainer.appendChild(div);
+    }
+}
+
+// Tạo input chọn số
+function createNumberInput(min, max, isMegaBall = false) {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = min;
+    input.max = max;
+    input.classList.add(isMegaBall ? "mega-ball" : "normal-number");
+    input.placeholder = isMegaBall ? "MB" : "##";
+    return input;
+}
+
+// Chọn vé nhanh (Quick Pick)
+function generateRandomTickets() {
+    document.querySelectorAll(".ticket").forEach(ticket => {
+        let selectedNumbers = new Set();
+        while (selectedNumbers.size < 5) {
+            selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
+        }
+        ticket.querySelectorAll(".normal-number").forEach((input, index) => input.value = [...selectedNumbers][index]);
+
+        ticket.querySelector(".mega-ball").value = Math.floor(Math.random() * 25) + 1;
+    });
 }
 
 // Mua vé số (gộp 10 vé vào 1 giao dịch)
@@ -139,36 +168,13 @@ async function purchaseTickets() {
         const buyTx = await lotteryContract.connect(signer).buyTicket(tickets);
         await buyTx.wait();
 
-        alert(`Tickets purchased successfully!\n${formatTickets(tickets)}`);
+        alert("Tickets purchased successfully!");
         closeTicketModal();
-        loadUserTickets();
         loadUserBalance();
     } catch (error) {
         console.error("Purchase failed:", error);
         alert("Transaction failed. Please try again.");
     }
-}
-
-// Đếm ngược đến 00:10 UTC hàng ngày
-function startCountdown() {
-    function updateCountdown() {
-        const now = new Date();
-        const nextDraw = new Date();
-        nextDraw.setUTCHours(0, 10, 0, 0);
-        if (now >= nextDraw) {
-            nextDraw.setUTCDate(nextDraw.getUTCDate() + 1);
-        }
-
-        const diff = nextDraw - now;
-        const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, "0");
-        const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
-        const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, "0");
-
-        document.getElementById("countdown").innerText = `${hours}:${minutes}:${seconds}`;
-    }
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
 }
 
 // Gán sự kiện cho các nút
