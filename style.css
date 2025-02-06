@@ -147,3 +147,14 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+/* Countdown Timer */
+#countdownTimer {
+    font-size: 20px;
+    font-weight: bold;
+    color: #f4a261;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #222;
+    border-radius: 10px;
+    width: fit-content;
+}
