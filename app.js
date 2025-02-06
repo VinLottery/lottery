@@ -63,11 +63,83 @@ function initContracts() {
     loadUserBalance();
 }
 
-// Chuẩn hóa vé số theo định dạng dễ đọc
-function formatTickets(tickets) {
-    return tickets.map((ticket, index) => {
-        return `${index + 1}#: ${ticket.slice(0, 5).join(",")};${ticket[5]}`;
-    }).join("\n");
+// Hiển thị số dư ví (FROLL & BNB)
+async function loadUserBalance() {
+    try {
+        const bnbBalance = await provider.getBalance(userAccount);
+        const frollBalance = await frollToken.balanceOf(userAccount);
+
+        document.getElementById("bnbBalance").innerText = `BNB: ${ethers.utils.formatEther(bnbBalance)} BNB`;
+        document.getElementById("frollBalance").innerText = `FROLL: ${ethers.utils.formatEther(frollBalance)} FROLL`;
+    } catch (error) {
+        console.error("Error fetching balance:", error);
+    }
+}
+
+// Hiển thị Jackpot
+async function loadJackpotData() {
+    try {
+        const jackpotBalance = await frollToken.balanceOf(lotteryContractAddress);
+        document.getElementById("jackpotAmount").innerText = `${ethers.utils.formatEther(jackpotBalance)} FROLL`;
+    } catch (error) {
+        console.error("Error fetching jackpot:", error);
+        document.getElementById("jackpotAmount").innerText = "Error loading jackpot";
+    }
+}
+
+// Mở modal chọn vé
+function openTicketModal() {
+    document.getElementById("ticketModal").style.display = "block";
+    generateTicketSelection();
+}
+
+// Đóng modal
+function closeTicketModal() {
+    document.getElementById("ticketModal").style.display = "none";
+}
+
+// Tạo giao diện chọn vé số
+function generateTicketSelection() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = "";
+
+    for (let i = 0; i < 5; i++) {
+        const div = document.createElement("div");
+        div.classList.add("ticket");
+
+        let numbers = [];
+        for (let j = 0; j < 5; j++) {
+            numbers.push(createNumberInput(1, 70));
+        }
+        numbers.push(createNumberInput(1, 25, true));
+
+        numbers.forEach(num => div.appendChild(num));
+        ticketContainer.appendChild(div);
+    }
+}
+
+// Tạo input chọn số
+function createNumberInput(min, max, isMegaBall = false) {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = min;
+    input.max = max;
+    input.classList.add(isMegaBall ? "mega-ball" : "normal-number");
+    input.placeholder = isMegaBall ? "MB" : "##";
+    return input;
+}
+
+// Chọn vé nhanh (Quick Pick)
+function generateRandomTickets() {
+    document.querySelectorAll(".ticket").forEach(ticket => {
+        let selectedNumbers = new Set();
+        while (selectedNumbers.size < 5) {
+            selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
+        }
+        ticket.querySelectorAll(".normal-number").forEach((input, index) => input.value = [...selectedNumbers][index]);
+
+        ticket.querySelector(".mega-ball").value = Math.floor(Math.random() * 25) + 1;
+    });
 }
 
 // Mua vé số (gộp 10 vé vào 1 giao dịch)
@@ -90,7 +162,7 @@ async function purchaseTickets() {
             return alert("Insufficient FROLL balance!");
         }
 
-        console.log("📜 Vé gửi lên hợp đồng:", formatTickets(tickets));
+        console.log("📜 Vé gửi lên hợp đồng:", tickets);
 
         // Cấp quyền để hợp đồng trừ FROLL
         const approveTx = await frollToken.connect(signer).approve(lotteryContractAddress, totalCost);
@@ -100,7 +172,7 @@ async function purchaseTickets() {
         const buyTx = await lotteryContract.connect(signer).buyTicket(tickets);
         await buyTx.wait();
 
-        alert("Tickets purchased successfully!\n" + formatTickets(tickets));
+        alert("Tickets purchased successfully!");
         closeTicketModal();
         loadUserBalance();
     } catch (error) {
