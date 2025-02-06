@@ -30,6 +30,35 @@ header {
     background: #e0e0e0;
 }
 
+/* Thông tin xổ số */
+#lotteryInfo {
+    background: white;
+    padding: 15px;
+    margin: 15px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    text-align: left;
+}
+
+#lotteryInfo p {
+    font-size: 1.1em;
+    margin: 5px 0;
+}
+
+#jackpotAmount {
+    font-weight: bold;
+    font-size: 1.5em;
+    color: #28a745;
+}
+
+#countdownTimer {
+    font-weight: bold;
+    font-size: 1.3em;
+    color: red;
+}
+
 /* Container chính */
 main {
     padding: 20px;
