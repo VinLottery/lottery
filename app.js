@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const frollBalanceDisplay = document.getElementById("frollBalance");
     const bnbBalanceDisplay = document.getElementById("bnbBalance");
     const jackpotAmount = document.getElementById("jackpot-amount");
-
+    const ticketGrid = document.querySelector(".ticket-grid");
+    const submitTicketButton = document.getElementById("submitTicket");
+    const resultMessage = document.getElementById("result-message");
+    
     // Địa chỉ hợp đồng trên BSC
     const FROLL_ADDRESS = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1";
     const LOTTERY_ADDRESS = "0x28ba1dE00bF69B7acE03364eEA1E34F86Cde2944";
@@ -16,11 +19,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let provider, signer, frollToken, lotteryContract, userAddress;
 
-    // Lắng nghe khi trang tải hoàn thành và gọi startCountdown
-window.addEventListener("load", () => {
-    fetchLatestJackpot();
-    startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
-});
+// Lắng nghe khi trang tải hoàn thành và gọi startCountdown
+    window.addEventListener("load", () => {
+        fetchLatestJackpot();
+        startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
+    });
 
     // Kết nối ví MetaMask
     async function connectWallet() {
@@ -72,6 +75,68 @@ window.addEventListener("load", () => {
         }
     }
 
-    // Event Listeners
+    // Chọn vé tự động (chọn ngẫu nhiên 6 số)
+    function selectRandomTicket() {
+        let numbers = [];
+        while (numbers.length < 6) {
+            let num = Math.floor(Math.random() * 70) + 1;
+            if (!numbers.includes(num)) {
+                numbers.push(num);
+            }
+        }
+        return numbers;
+    }
+
+    // Chọn vé thủ công (người dùng chọn số)
+    function selectCustomTicket() {
+        const selectedNumbers = [];
+        document.querySelectorAll(".number.selected").forEach(button => {
+            selectedNumbers.push(parseInt(button.getAttribute("data-number")));
+        });
+        return selectedNumbers;
+    }
+
+    // Xử lý chọn số
+    document.querySelectorAll(".number").forEach(button => {
+        button.addEventListener("click", () => {
+            button.classList.toggle("selected");
+        });
+    });
+
+    // Xử lý gửi vé xổ số
+    submitTicketButton.addEventListener("click", async () => {
+        let ticketNumbers = selectCustomTicket();
+
+        // Nếu không có số nào được chọn, chọn vé ngẫu nhiên
+        if (ticketNumbers.length === 0) {
+            ticketNumbers = selectRandomTicket();
+        }
+
+        if (ticketNumbers.length !== 6) {
+            alert("You need to select 6 numbers!");
+            return;
+        }
+
+        // Gửi ticket và thanh toán bằng FROLL
+        try {
+            resultMessage.textContent = "Submitting ticket...";
+
+            // Tính phí vé (ví dụ 0.01 FROLL)
+            const ticketPrice = ethers.utils.parseUnits("0.01", 18); // 0.01 FROLL
+            const tx = await lotteryContract.buyTicket([ticketNumbers], {
+                value: ticketPrice // Thanh toán bằng FROLL
+            });
+
+            // Đợi giao dịch thành công
+            await tx.wait();
+
+            resultMessage.textContent = "Ticket successfully submitted!";
+        } catch (error) {
+            console.error("Ticket submission failed:", error);
+            resultMessage.textContent = "Failed to submit ticket.";
+        }
+    });
+
+    // Kết nối ví khi người dùng nhấn nút
     walletButton.addEventListener("click", connectWallet);
 });
