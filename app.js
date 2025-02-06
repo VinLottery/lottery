@@ -16,7 +16,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let provider, signer, frollToken, lotteryContract, userAddress;
 
-// Kết nối ví MetaMask
+    // Lắng nghe khi trang tải hoàn thành và gọi startCountdown
+window.addEventListener("load", () => {
+    fetchLatestJackpot();
+    startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
+});
+
+    // Kết nối ví MetaMask
     async function connectWallet() {
         if (window.ethereum) {
             try {
