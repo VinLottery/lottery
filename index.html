@@ -1,52 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery VIN</title>
+    <meta name="description" content="Lottery.vin - Xổ số FROLL tự động minh bạch trên blockchain">
+    <title>Lottery VIN - Xổ số Blockchain</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- Include Ethers.js -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <!-- Include App.js -->
-    <script defer src="app.js"></script>
+    <link rel="icon" type="image/png" href="web48.png">
 </head>
 <body>
-
     <!-- Header -->
     <header>
-        <h1>Lottery VIN</h1>
-        <button id="connectWallet">Connect Wallet</button>
-        <p id="walletAddress">Not connected</p>
+        <div class="logo">
+            <img src="web48.png" alt="Lottery VIN">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#">Trang Chủ</a></li>
+                <li><a href="#buy-ticket">Mua Vé</a></li>
+                <li><a href="#jackpot">Kết Quả</a></li>
+                <li><a href="https://froll.net" target="_blank">Trade FROLL</a></li>
+                <li><a href="https://x.com/FortuneRolls" target="_blank">X</a></li>
+                <li><a href="https://t.me/FortuneRolls" target="_blank">Telegram</a></li>
+            </ul>
+        </nav>
     </header>
-
-    <!-- Thông tin xổ số -->
-    <section id="lotteryInfo">
-        <h2>Lottery Information</h2>
-        <p><strong>Jackpot:</strong> <span id="jackpotAmount">Loading...</span> FROLL</p>
-        <p><strong>Last Draw:</strong> <span id="lastDrawNumbers">Loading...</span></p>
-        <p><strong>Next Draw:</strong> <span id="nextDrawTime">00:10 UTC</span></p>
-        <p><strong>Ticket Price:</strong> 0.0001 FROLL</p>
-        <p><strong>Countdown:</strong> <span id="countdownTimer">Loading...</span></p>
-    </section>
-
-    <!-- Khu vực chọn vé số -->
-    <main>
-        <section id="lottery">
-            <h2>Buy Your Tickets</h2>
-            <div id="ticketsContainer"></div>
-            <button id="quickAll">Quick All</button>
-            <button id="buyTickets">Buy Tickets</button>
-        </section>
-
-        <section id="results">
-            <h2>Latest Results</h2>
-            <p id="latestDraw"></p>
-            <input type="date" id="searchDate">
-            <button id="searchResult">Search</button>
-            <p id="searchOutput"></p>
-        </section>
-    </main>
-
-</body>
-</html>
