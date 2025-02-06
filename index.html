@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lottery.VIN - Mega Millions</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.5/dist/web3.min.js"></script>
+    <!-- Include Ethers.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <!-- Include App.js -->
     <script defer src="app.js"></script>
 </head>
 <body>
@@ -16,11 +18,31 @@
         <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1>Welcome to Mega Millions Lottery</h1>
-        <p>Pick 5 numbers (1-70) and 1 Mega Ball (1-25) to win the jackpot!</p>
-        <p>Each ticket costs <strong>0.0001 FROLL</strong>.</p>
+    <!-- Lottery Information -->
+    <section class="lottery-info">
+        <h1>Mega Millions Lottery</h1>
+        <p>Win the Jackpot by matching 5 numbers (1-70) + 1 Mega Ball (1-25)!</p>
+        
+        <div class="info-box">
+            <h2>🎰 Current Jackpot</h2>
+            <p id="jackpotAmount">Loading...</p>
+        </div>
+
+        <div class="info-box">
+            <h2>⏳ Next Draw</h2>
+            <p id="nextDrawTime">Loading...</p>
+        </div>
+
+        <div class="info-box">
+            <h2>💰 Ticket Price</h2>
+            <p>0.0001 FROLL per ticket</p>
+        </div>
+
+        <div class="info-box">
+            <h2>📅 Ticket Sales</h2>
+            <p>Open: 00:15 UTC - Close: 23:55 UTC</p>
+        </div>
+
         <button class="play-btn" onclick="openTicketModal()">Play Now</button>
     </section>
 
@@ -36,14 +58,6 @@
             <button id="buyTickets" onclick="purchaseTickets()">Buy Tickets</button>
         </div>
     </div>
-
-    <!-- Jackpot Display -->
-    <section class="jackpot-section">
-        <h2>Current Jackpot</h2>
-        <p id="jackpotAmount">Loading...</p>
-        <h3>Last Draw: <span id="lastDrawDate">Loading...</span></h3>
-        <p id="lastDrawNumbers">---</p>
-    </section>
 
     <!-- Lottery Results -->
     <section class="results">
