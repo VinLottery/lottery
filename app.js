@@ -19,10 +19,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let provider, signer, frollToken, lotteryContract, userAddress;
 
-// Lắng nghe khi trang tải hoàn thành và gọi startCountdown
+    // Lắng nghe khi trang tải hoàn thành và gọi startCountdown
     window.addEventListener("load", () => {
         fetchJackpotBalance(); // Hiển thị jackpot khi trang tải
         startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
+        setupTicketGrid(); // Thiết lập lưới số
     });
 
     // Kết nối ví MetaMask
@@ -116,6 +117,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             selectedNumbers.push(parseInt(button.getAttribute("data-number")));
         });
         return selectedNumbers;
+    }
+
+    // Cài đặt lưới số
+    function setupTicketGrid() {
+        const numberGridTop = document.getElementById("number-grid-top");
+        const numberGridBottom = document.getElementById("number-grid-bottom");
+
+        // Tạo các số từ 1 đến 70
+        for (let i = 1; i <= 70; i++) {
+            const button = document.createElement("button");
+            button.classList.add("number");
+            button.setAttribute("data-number", i);
+            button.textContent = i;
+            numberGridTop.appendChild(button);
+        }
+
+        // Tạo các số từ 1 đến 25 (Powerball)
+        for (let i = 1; i <= 25; i++) {
+            const button = document.createElement("button");
+            button.classList.add("number");
+            button.setAttribute("data-number", i);
+            button.textContent = i;
+            numberGridBottom.appendChild(button);
+        }
     }
 
     // Xử lý chọn số
