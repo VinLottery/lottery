@@ -32,7 +32,9 @@ async function connectWallet() {
 function initContracts() {
     lotteryContract = new ethers.Contract(lotteryContractAddress, lotteryABI, signer);
     frollToken = new ethers.Contract(frollTokenAddress, tokenABI, signer);
+
     loadLotteryData();
+    loadUserBalance();  // 👉 Thêm dòng này để cập nhật số dư
     loadUserTickets();
 }
 
@@ -43,6 +45,21 @@ async function loadLotteryData() {
         document.getElementById("jackpotAmount").innerText = `${ethers.utils.formatEther(jackpotBalance)} FROLL`;
     } catch (error) {
         console.error("Error loading jackpot:", error);
+    }
+}
+
+// ✅ Load User Balance (Hiển thị số dư FROLL & BNB)
+async function loadUserBalance() {
+    try {
+        const bnbBalance = await provider.getBalance(userAccount);
+        const frollBalance = await frollToken.balanceOf(userAccount);
+
+        document.getElementById("bnbBalance").innerText = `BNB: ${ethers.utils.formatEther(bnbBalance)}`;
+        document.getElementById("frollBalance").innerText = `FROLL: ${ethers.utils.formatEther(frollBalance)}`;
+    } catch (error) {
+        console.error("Error loading balances:", error);
+        document.getElementById("bnbBalance").innerText = "BNB: Error";
+        document.getElementById("frollBalance").innerText = "FROLL: Error";
     }
 }
 
@@ -122,6 +139,7 @@ async function purchaseTickets() {
 
         alert("Tickets purchased successfully!");
         closeTicketModal();
+        loadUserBalance();  // 👉 Cập nhật số dư ngay sau khi mua vé
         loadUserTickets();
     } catch (error) {
         console.error("Purchase failed:", error);
