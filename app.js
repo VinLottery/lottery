@@ -1,4 +1,4 @@
-// Contract Addresses (Thay thế bằng địa chỉ thực tế)
+// Contract Addresses
 const lotteryContractAddress = "0x28ba1dE00bF69B7acE03364eEA1E34F86Cde2944"; 
 const frollTokenAddress = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1"; 
 
@@ -33,6 +33,12 @@ const tokenABI = [
         "name": "balanceOf",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
         "stateMutability": "view", "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, 
+                   {"internalType": "uint256", "name": "value", "type": "uint256"}],
+        "name": "approve", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable", "type": "function"
     }
 ];
 
@@ -82,7 +88,49 @@ function formatTickets(tickets) {
     }).join("\n");
 }
 
-// Chọn vé tự động (Quick Pick)
+// Mở cửa sổ chọn vé
+function openTicketModal() {
+    document.getElementById("ticketModal").style.display = "block";
+    generateTicketSelection();
+}
+
+// Đóng cửa sổ chọn vé
+function closeTicketModal() {
+    document.getElementById("ticketModal").style.display = "none";
+}
+
+// Tạo giao diện chọn vé số
+function generateTicketSelection() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = "";
+
+    for (let i = 0; i < 5; i++) {
+        const div = document.createElement("div");
+        div.classList.add("ticket");
+
+        let numbers = [];
+        for (let j = 0; j < 5; j++) {
+            numbers.push(createNumberInput(1, 70));
+        }
+        numbers.push(createNumberInput(1, 25, true));
+
+        numbers.forEach(num => div.appendChild(num));
+        ticketContainer.appendChild(div);
+    }
+}
+
+// Tạo input chọn số
+function createNumberInput(min, max, isMegaBall = false) {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = min;
+    input.max = max;
+    input.classList.add(isMegaBall ? "mega-ball" : "normal-number");
+    input.placeholder = isMegaBall ? "MB" : "##";
+    return input;
+}
+
+// Chọn vé nhanh (Quick Pick)
 function generateRandomTickets() {
     document.querySelectorAll(".ticket").forEach(ticket => {
         let selectedNumbers = new Set();
@@ -131,29 +179,7 @@ async function purchaseTickets() {
     }
 }
 
-// Lấy vé số của người chơi
-async function loadUserTickets() {
-    try {
-        const ticketCount = await lotteryContract.participants(userAccount);
-        if (ticketCount.toNumber() === 0) {
-            document.getElementById("userTickets").innerHTML = "<p>You have no tickets.</p>";
-            return;
-        }
-
-        let ticketsHTML = "<h3>Your Tickets:</h3><ul>";
-        for (let i = 0; i < ticketCount; i++) {
-            const ticketData = await lotteryContract.tickets(userAccount, i);
-            let ticketNumbers = ticketData.map(num => num.toNumber());
-            ticketsHTML += `<li>${i + 1}#: ${ticketNumbers.slice(0, 5).join(",")};${ticketNumbers[5]}</li>`;
-        }
-        ticketsHTML += "</ul>";
-
-        document.getElementById("userTickets").innerHTML = ticketsHTML;
-    } catch (error) {
-        console.error("Error fetching tickets:", error);
-        document.getElementById("userTickets").innerHTML = "<p>Error loading tickets.</p>";
-    }
-}
-
-// Kết nối ví khi nhấn nút
+// Gọi khi nhấn nút
 document.getElementById("connectWallet").addEventListener("click", connectWallet);
+document.querySelector(".play-btn").addEventListener("click", openTicketModal);
+document.getElementById("buyTickets").addEventListener("click", purchaseTickets);
