@@ -3,90 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Lottery.vin - Transparent Blockchain Lottery with FROLL">
-    <title>FROLL Jackpot Lottery - Blockchain Lottery</title>
+    <title>Lottery.VIN - Mega Millions</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" type="image/png" href="web48.png">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.5/dist/web3.min.js"></script>
+    <script defer src="app.js"></script>
 </head>
 <body>
-    <!-- Header & Navigation -->
-    <header>
-        <div class="logo">
-            <img src="web48.png" alt="Lottery VIN">
-        </div>
-        <nav>
-            <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#buy-ticket">Buy Ticket</a></li>
-                <li><a href="#jackpot">Jackpot Results</a></li>
-                <li><a href="https://froll.net" target="_blank">Trade FROLL</a></li>
-                <li><a href="https://x.com/FortuneRolls" target="_blank">X</a></li>
-                <li><a href="https://t.me/FortuneRolls" target="_blank">Telegram</a></li>
-            </ul>
-        </nav>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+        <img src="web48.png" alt="Lottery.VIN Logo" class="logo">
+        <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
     </header>
 
-    <!-- PowerBall Information -->
-    <section id="powerball-info">
-        <h1>FROLL Jackpot Lottery</h1>
-        <p><strong>Jackpot:</strong> <span id="jackpot-amount">Loading...</span></p>
-        <p><strong>Ticket Price:</strong> 0.0001 FROLL</p>
-        <p><strong>Winning Numbers:</strong> Determined by the first BNB block hash after 00:00 UTC</p>
-        <p><strong>Opening Sale Time:</strong> 00:15 UTC - 23:45 UTC</p>
-        <p><strong>Draw Time:</strong> 00:10 UTC (first BNB block after 00:00 UTC)</p>
-        <p><strong>Ticket Sale Closing:</strong> 23:45 UTC - 00:15 UTC</p>
-        <div id="countdownTimer">Next Draw: Loading...</div>
-        <button id="play-button">Play Now</button>
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Welcome to Mega Millions Lottery</h1>
+        <p>Pick 5 numbers (1-70) and 1 Mega Ball (1-25) to win the jackpot!</p>
+        <p>Each ticket costs <strong>0.0001 FROLL</strong>.</p>
+        <button class="play-btn" onclick="openTicketModal()">Play Now</button>
     </section>
 
-    <!-- Jackpot Results Section -->
-    <section id="jackpot-results">
-        <h1>Latest Jackpot Results</h1>
-        <div class="jackpot-numbers" id="jackpot-numbers">Loading...</div>
-        <p class="jackpot-date" id="jackpot-date"></p>
+    <!-- Ticket Selection Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeTicketModal()">&times;</span>
+            <h2>Select Your Numbers</h2>
+            <div id="ticketContainer">
+                <!-- Tickets will be dynamically added here -->
+            </div>
+            <button onclick="generateRandomTickets()">Quick Pick</button>
+            <button id="buyTickets" onclick="purchaseTickets()">Buy Tickets</button>
+        </div>
+    </div>
 
-        <!-- Search Previous Results -->
-        <h2>Search Past Results</h2>
-        <input type="date" id="searchDate">
-        <button id="searchResult">Search</button>
-        <p id="searchOutput"></p>
+    <!-- Jackpot Display -->
+    <section class="jackpot-section">
+        <h2>Current Jackpot</h2>
+        <p id="jackpotAmount">Loading...</p>
+        <h3>Last Draw: <span id="lastDrawDate">Loading...</span></h3>
+        <p id="lastDrawNumbers">---</p>
     </section>
 
-    <!-- Ticket Selection Section -->
-    <section id="buy-ticket">
-        <h1>Select Your Tickets</h1>
-        <p>Select 5 numbers from 1-70 and 1 number from 1-25 (Powerball).</p>
-
-        <!-- Quick Select Buttons -->
-        <button id="quickAll">Quick All</button>
-
-        <!-- Ticket Containers -->
-        <div id="number-grid-top"></div> <!-- Number grid 1-70 -->
-        <div id="number-grid-bottom"></div> <!-- Number grid 1-25 -->
-
-        <!-- Buy Ticket Button -->
-        <button id="buyTickets">Buy Tickets</button>
-        <p id="transaction-status"></p>
+    <!-- Lottery Results -->
+    <section class="results">
+        <h2>Recent Winners</h2>
+        <ul id="winnersList">
+            <li>Loading...</li>
+        </ul>
     </section>
 
-    <!-- Connect Wallet Section -->
-    <section id="wallet">
-        <h2>Connect Your Wallet</h2>
-        <button id="connectWallet">Connect MetaMask</button>
-        <p id="walletAddress">Not connected</p>
-        <p><strong>FROLL Balance:</strong> <span id="frollBalance">Loading...</span></p>
-        <p><strong>BNB Balance:</strong> <span id="bnbBalance">Loading...</span></p>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 Lottery VIN. All Rights Reserved.</p>
-        <p>Powered by <a href="https://froll.net" target="_blank">FROLL</a> & Blockchain Technology.</p>
-    </footer>
-
-    <!-- Include Ethers.js -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <!-- Include App.js -->
-    <script src="app.js"></script>
 </body>
 </html>
