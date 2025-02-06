@@ -4,6 +4,8 @@ const abi = [{"inputs":[{"internalType":"contract IERC20","name":"_frollToken","
 const frollAbi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]; // ABI của token FROLL
 
 let web3, lotteryContract, frollToken, userAccount;
+
+// Kết nối ví tự động nếu trước đó đã kết nối
 document.addEventListener("DOMContentLoaded", async () => {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
@@ -23,7 +25,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
+// Kết nối ví khi người dùng nhấn nút
 async function connectWallet() {
+    if (!window.ethereum) {
+        alert("Please install MetaMask!");
+        return;
+    }
+
     try {
         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
         userAccount = accounts[0];
@@ -38,65 +46,34 @@ async function connectWallet() {
     }
 }
 
+// Hiển thị thông tin ví
 function displayWalletInfo() {
     document.getElementById("walletAddress").innerText = userAccount || "Not connected";
 }
 
+// Khởi tạo hợp đồng thông minh
 async function initContracts() {
     lotteryContract = new web3.eth.Contract(abi, contractAddress);
     frollToken = new web3.eth.Contract(frollAbi, frollTokenAddress);
 }
-async function buyTicket() {
-    if (!userAccount) {
-        alert("Please connect your wallet first!");
-        return;
-    }
 
-    let tickets = [];
-    for (let i = 1; i <= 10; i++) {
-        let ticket = [];
-        for (let j = 1; j <= 5; j++) {
-            const num = document.getElementById(`num${i}_${j}`).value;
-            if (!num || num < 1 || num > 70) continue; // Kiểm tra số hợp lệ
-            ticket.push(Number(num));
-        }
-        const megaBall = document.getElementById(`megaBall${i}`).value;
-        if (!megaBall || megaBall < 1 || megaBall > 25) {
-            alert(`Mega Ball trên vé ${i} không hợp lệ!`);
-            return;
-        }
-        ticket.push(Number(megaBall)); // Thêm số Mega Ball vào vé
-
-        if (ticket.length === 6) {
-            tickets.push(ticket);
-        }
-    }
-
-    if (tickets.length === 0) {
-        alert("Please select at least one complete ticket.");
-        return;
-    }
-
+// Gán sự kiện kết nối ví vào nút bấm
+document.getElementById("connectWallet").addEventListener("click", connectWallet);
+async function updateBalances() {
+    if (!userAccount) return;
     try {
-        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
-        const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
+        const bnbBalance = await web3.eth.getBalance(userAccount);
+        const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
 
-        // Approve FROLL token trước khi mua vé
-        await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
-
-        // Gửi giao dịch mua vé
-        await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
-
-        alert("Ticket purchase successful!");
-        await updateBalances(); // Cập nhật số dư sau khi mua vé
+        document.getElementById("bnbBalance").innerText = web3.utils.fromWei(bnbBalance, "ether");
+        document.getElementById("frollBalance").innerText = web3.utils.fromWei(frollBalance, "ether");
     } catch (error) {
-        console.error("Transaction failed", error);
-        alert("Transaction failed. Please try again.");
+        console.error("Error updating balances:", error);
     }
 }
 
-// Gán sự kiện cho nút mua vé
-document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
+// Cập nhật số dư khi trang tải
+document.addEventListener("DOMContentLoaded", updateBalances);
 async function updateJackpot() {
     if (!lotteryContract) return;
     try {
@@ -195,18 +172,54 @@ document.getElementById("quickAll").addEventListener("click", () => {
 
 // Gọi tạo UI khi trang tải
 document.addEventListener("DOMContentLoaded", createTicketUI);
-async function updateBalances() {
-    if (!userAccount) return;
-    try {
-        const bnbBalance = await web3.eth.getBalance(userAccount);
-        const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
+async function buyTicket() {
+    if (!userAccount) {
+        alert("Please connect your wallet first!");
+        return;
+    }
 
-        document.getElementById("bnbBalance").innerText = web3.utils.fromWei(bnbBalance, "ether");
-        document.getElementById("frollBalance").innerText = web3.utils.fromWei(frollBalance, "ether");
+    let tickets = [];
+    for (let i = 1; i <= 10; i++) {
+        let ticket = [];
+        for (let j = 1; j <= 5; j++) {
+            const num = document.getElementById(`num${i}_${j}`).value;
+            if (!num || num < 1 || num > 70) continue; // Kiểm tra số hợp lệ
+            ticket.push(Number(num));
+        }
+        const megaBall = document.getElementById(`megaBall${i}`).value;
+        if (!megaBall || megaBall < 1 || megaBall > 25) {
+            alert(`Mega Ball trên vé ${i} không hợp lệ!`);
+            return;
+        }
+        ticket.push(Number(megaBall)); // Thêm số Mega Ball vào vé
+
+        if (ticket.length === 6) {
+            tickets.push(ticket);
+        }
+    }
+
+    if (tickets.length === 0) {
+        alert("Please select at least one complete ticket.");
+        return;
+    }
+
+    try {
+        const ticketPrice = await lotteryContract.methods.ticketPrice().call();
+        const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
+
+        // Approve FROLL token trước khi mua vé
+        await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
+
+        // Gửi giao dịch mua vé
+        await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
+
+        alert("Ticket purchase successful!");
+        await updateBalances(); // Cập nhật số dư sau khi mua vé
     } catch (error) {
-        console.error("Error updating balances:", error);
+        console.error("Transaction failed", error);
+        alert("Transaction failed. Please try again.");
     }
 }
 
-// Cập nhật số dư khi trang tải
-document.addEventListener("DOMContentLoaded", updateBalances);
+// Gán sự kiện cho nút mua vé
+document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
