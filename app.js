@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Lắng nghe khi trang tải hoàn thành và gọi startCountdown
     window.addEventListener("load", () => {
-        fetchLatestJackpot();
+        fetchJackpotBalance();
         startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
     });
 
@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (window.ethereum) {
             try {
                 provider = new ethers.providers.Web3Provider(window.ethereum);
-                await provider.send("eth_requestAccounts", []);
+                await provider.send("eth_requestAccounts", []);  // Yêu cầu quyền truy cập tài khoản
+
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
                 walletAddressDisplay.textContent = `Connected: ${userAddress}`;
@@ -40,10 +41,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 // Lấy số dư ví
                 fetchWalletBalance();
-                fetchJackpotBalance();
             } catch (error) {
                 console.error("Wallet connection failed:", error);
-                alert("There was an error connecting to the wallet.");
+                alert("There was an error connecting to MetaMask.");
             }
         } else {
             alert("MetaMask is not installed. Please install it to use this feature.");
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Chọn vé tự động (chọn ngẫu nhiên 6 số)
+    // Chọn số tự động
     function selectRandomTicket() {
         let numbers = [];
         while (numbers.length < 6) {
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return numbers;
     }
 
-    // Chọn vé thủ công (người dùng chọn số)
+    // Chọn số thủ công (người dùng chọn số)
     function selectCustomTicket() {
         const selectedNumbers = [];
         document.querySelectorAll(".number.selected").forEach(button => {
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     });
 
-    // Xử lý gửi vé xổ số
+    // Gửi vé xổ số
     submitTicketButton.addEventListener("click", async () => {
         let ticketNumbers = selectCustomTicket();
 
