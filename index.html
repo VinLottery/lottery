@@ -9,7 +9,7 @@
     <link rel="icon" type="image/png" href="web48.png">
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header & Navigation -->
     <header>
         <div class="logo">
             <img src="web48.png" alt="Lottery VIN">
@@ -25,49 +25,48 @@
             </ul>
         </nav>
     </header>
-    <!-- Main Section -->
-    <main>
-        <!-- Jackpot Section -->
-        <section id="jackpot">
-            <h1>Latest Jackpot Results</h1>
-            <div class="jackpot-numbers" id="jackpot-numbers">Loading...</div>
-            <p class="jackpot-date" id="jackpot-date"></p>
-        </section>
 
-        <!-- Buy Ticket Section -->
-        <section id="buy-ticket">
-            <h1>Buy Lottery Ticket</h1>
-            <p>Select 6 numbers (5 from 1-70, 1 from 1-25):</p>
-            <form id="ticket-form">
-                <div class="number-selection">
-                    <label for="num1">Number 1:</label>
-                    <input type="number" id="num1" min="1" max="70" required>
-                    
-                    <label for="num2">Number 2:</label>
-                    <input type="number" id="num2" min="1" max="70" required>
-                    
-                    <label for="num3">Number 3:</label>
-                    <input type="number" id="num3" min="1" max="70" required>
-                    
-                    <label for="num4">Number 4:</label>
-                    <input type="number" id="num4" min="1" max="70" required>
-                    
-                    <label for="num5">Number 5:</label>
-                    <input type="number" id="num5" min="1" max="70" required>
-                    
-                    <label for="num6">Powerball (1-25):</label>
-                    <input type="number" id="num6" min="1" max="25" required>
-                </div>
-                <button type="submit">Buy Ticket</button>
-            </form>
-            <p id="transaction-status"></p>
-        </section>
-    </main>
+    <!-- PowerBall Information -->
+    <section id="powerball-info">
+        <h1>PowerBall Lottery</h1>
+        <p><strong>Jackpot:</strong> <span id="jackpot-amount">Loading...</span> FROLL</p>
+        <p><strong>Ticket Price:</strong> 0.0001 FROLL</p>
+        <p><strong>Winning Numbers:</strong> Determined by the first BNB block hash after 00:00 UTC</p>
+        <div id="countdownTimer">Next Draw: Loading...</div>
+        <button id="play-button">Play Now</button>
+    </section>
+    <!-- Jackpot Results Section -->
+    <section id="jackpot-results">
+        <h1>Latest Jackpot Results</h1>
+        <div class="jackpot-numbers" id="jackpot-numbers">Loading...</div>
+        <p class="jackpot-date" id="jackpot-date"></p>
+
+        <!-- Search Previous Results -->
+        <h2>Search Past Results</h2>
+        <input type="date" id="searchDate">
+        <button id="searchResult">Search</button>
+        <p id="searchOutput"></p>
+    </section>
+    <!-- Ticket Selection Section -->
+    <section id="buy-ticket">
+        <h1>Select Your Tickets</h1>
+        <p>Choose 6 numbers per ticket (5 from 1-70, 1 from 1-25).</p>
+
+        <!-- Quick Select Buttons -->
+        <button id="quickAll">Quick All</button>
+
+        <!-- Ticket Containers -->
+        <div id="ticketsContainer"></div>
+
+        <!-- Buy Ticket Button -->
+        <button id="buyTickets">Buy Tickets</button>
+        <p id="transaction-status"></p>
+    </section>
     <!-- Connect Wallet Section -->
     <section id="wallet">
         <h2>Connect Your Wallet</h2>
-        <button id="connect-wallet">Connect MetaMask</button>
-        <p id="wallet-address">Not connected</p>
+        <button id="connectWallet">Connect MetaMask</button>
+        <p id="walletAddress">Not connected</p>
     </section>
 
     <!-- Footer -->
