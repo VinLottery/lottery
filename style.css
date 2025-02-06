@@ -3,302 +3,178 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
-    color: #121212;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
     text-align: center;
 }
 
-/* Header */
-header {
-    background-color: #0088cc;
-    padding: 15px 20px;
+/* Navbar */
+.navbar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 15px 20px;
 }
 
-/* Logo */
-.logo img {
+.logo {
     height: 50px;
 }
 
-/* Navigation */
-nav ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-nav ul li {
-    margin: 0 15px;
-}
-
-nav ul li a {
-    text-decoration: none;
-    color: #ffffff;
-    font-weight: bold;
-    font-size: 16px;
-    transition: color 0.3s, transform 0.2s;
-}
-
-nav ul li a:hover {
-    color: #ffdd57;
-    transform: scale(1.1);
-}
-
-/* PowerBall Information */
-#powerball-info {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#powerball-info h1 {
-    color: #0088cc;
-}
-
-#powerball-info p {
-    font-size: 18px;
-    margin: 5px 0;
-    font-weight: bold;
-}
-
-/* Countdown Timer */
-#countdownTimer {
-    font-size: 22px;
-    font-weight: bold;
-    color: #d9534f;
-    margin: 15px auto;
-    padding: 10px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    width: fit-content;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Play Now Button */
-#play-button {
-    background-color: #0088cc;
+.wallet-btn {
+    background: #f39c12;
     color: white;
-    font-size: 18px;
-    padding: 12px 20px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-    margin-top: 10px;
-}
-
-#play-button:hover {
-    background-color: #005f99;
-    transform: scale(1.1);
-}
-
-/* Jackpot Results */
-#jackpot-results {
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.jackpot-numbers {
-    font-size: 26px;
-    font-weight: bold;
-    color: #d9534f;
-    margin: 10px 0;
-}
-
-.jackpot-date {
-    font-size: 14px;
-    color: #333;
-}
-
-/* Buy Ticket Section */
-#buy-ticket {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 900px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#buy-ticket h1 {
-    color: #0088cc;
-}
-
-#buy-ticket p {
+    padding: 10px 20px;
     font-size: 16px;
-    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.wallet-btn:hover {
+    background: #e67e22;
+}
+
+/* Hero Section */
+.hero {
+    padding: 50px 20px;
+}
+
+.hero h1 {
+    font-size: 36px;
     margin-bottom: 10px;
 }
 
-/* Ticket Grid */
-.ticket {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 15px;
-    border-radius: 10px;
-    margin: 10px auto;
+.hero p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.play-btn {
+    background: #27ae60;
+    padding: 12px 20px;
+    font-size: 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.play-btn:hover {
+    background: #219150;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
     width: 100%;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
 }
 
-/* Chia bảng số thành 2 khu vực */
-.ticket .ticket-header {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 5px;
+.modal-content {
+    background: #34495e;
+    width: 60%;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
 }
 
-/* Number Grid (1-70) */
-.number-grid-top {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 5px;
-    margin: 10px auto;
+.close {
+    float: right;
+    font-size: 30px;
+    cursor: pointer;
+    color: white;
+}
+
+.close:hover {
+    color: #f39c12;
+}
+
+/* Ticket Selection */
+#ticketContainer {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    margin-top: 20px;
 }
 
-/* Number Grid (1-25 - Powerball) */
-.number-grid-bottom {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
-    margin: 10px auto;
-    justify-content: center;
+.ticket {
+    background: #2c3e50;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-/* Nút chọn số */
-.number-grid-top button,
-.number-grid-bottom button {
+.ticket input {
     width: 40px;
     height: 40px;
-    font-size: 16px;
+    text-align: center;
+    font-size: 18px;
     border: none;
-    border-radius: 50%;
-    background-color: white;
+    border-radius: 5px;
+    background: #ecf0f1;
     color: black;
-    cursor: pointer;
-    transition: background 0.3s, color 0.3s;
 }
 
-/* Khi chọn số */
-.number-grid-top button.selected,
-.number-grid-bottom button.selected {
-    background-color: red;
+.mega-ball {
+    background: #f39c12;
     color: white;
-}
-
-/* Quick Select Buttons */
-.quick-buttons {
-    margin-top: 10px;
-}
-
-.quick-buttons button {
-    background-color: #0088cc;
-    color: white;
-    font-size: 14px;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-}
-
-.quick-buttons button:hover {
-    background-color: #005f99;
-    transform: scale(1.05);
-}
-
-/* Buy Ticket Button */
-#buyTickets {
-    background-color: #0088cc;
-    color: white;
-    font-size: 18px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-    margin-top: 10px;
-}
-
-#buyTickets:hover {
-    background-color: #005f99;
-    transform: scale(1.05);
-}
-
-/* Wallet Section */
-#wallet {
-    background-color: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    margin: 20px auto;
-    width: 80%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-#wallet h2 {
-    color: #0088cc;
-}
-
-#wallet p {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-}
-
-/* Wallet Connect Button */
-#connectWallet {
-    background-color: #0088cc;
-    color: white;
-    font-size: 18px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-    margin-top: 10px;
-}
-
-#connectWallet:hover {
-    background-color: #005f99;
-    transform: scale(1.05);
-}
-
-/* Wallet Address Display */
-#walletAddress {
-    font-size: 16px;
-    margin-top: 10px;
-    color: #333;
-}
-
-/* Footer */
-footer {
-    background-color: #0088cc;
-    padding: 15px;
-    margin-top: 20px;
-    font-size: 14px;
-    color: white;
-}
-
-footer a {
-    color: #ffdd57;
-    text-decoration: none;
     font-weight: bold;
 }
 
-footer a:hover {
-    text-decoration: underline;
+button {
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+/* Jackpot Section */
+.jackpot-section {
+    margin-top: 30px;
+    font-size: 20px;
+}
+
+/* Recent Winners */
+.results {
+    margin-top: 30px;
+}
+
+.results ul {
+    list-style: none;
+    padding: 0;
+}
+
+.results li {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%;
+    }
+    
+    .ticket {
+        flex-direction: column;
+    }
 }
