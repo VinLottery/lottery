@@ -35,18 +35,17 @@
         <div class="info-box">
             <h2>⏳ Next Draw</h2>
             <p id="nextDrawTime">Loading...</p>
-            <p id="countdown">00:00:00</p>
+            <p id="countdown">Waiting...</p>
         </div>
 
         <div class="info-box">
             <h2>💰 Ticket Price</h2>
-            <p>0.0001 FROLL per ticket</p>
+            <p>0.0001 FROLL per ticket (3 tickets required)</p>
         </div>
 
         <div class="info-box">
             <h2>📅 Ticket Sales</h2>
-            <p>Open: 00:15 UTC – Close: 23:55 UTC</p>
-            <p>Winning numbers are based on the first BNB block hash after 00:00 UTC.</p>
+            <p>Open: 00:15 UTC - Close: 23:45 UTC</p>
         </div>
 
         <!-- Wallet Balances -->
@@ -65,7 +64,7 @@
             <span class="close" onclick="closeTicketModal()">&times;</span>
             <h2>Select Your Numbers</h2>
             <div id="ticketContainer">
-                <!-- Tickets will be dynamically added here -->
+                <!-- Tickets dynamically generated here -->
             </div>
             <button onclick="generateRandomTickets()">Quick Pick</button>
             <button id="buyTickets" onclick="purchaseTickets()">Buy Tickets</button>
@@ -76,6 +75,14 @@
     <section class="user-tickets">
         <h2>🎟️ Your Tickets</h2>
         <div id="userTickets">Loading...</div>
+    </section>
+
+    <!-- Check Hash -->
+    <section class="check-hash">
+        <h2>🔍 Check Hash</h2>
+        <input type="text" id="hashInput" placeholder="Enter block hash">
+        <button onclick="checkHash()">Check</button>
+        <p id="hashResult"></p>
     </section>
 
     <!-- Lottery Results -->
