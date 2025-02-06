@@ -1,14 +1,14 @@
-// Contract Details (Thay thế bằng địa chỉ thực tế)
+// Contract Addresses (Thay thế bằng địa chỉ thực tế)
 const lotteryContractAddress = "0x28ba1dE00bF69B7acE03364eEA1E34F86Cde2944"; 
 const frollTokenAddress = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1"; 
 
-// Giá vé 0.0001 FROLL (đơn vị Wei)
+// Giá vé 0.0001 FROLL (Wei)
 const ticketPrice = ethers.utils.parseEther("0.0001");
 
 let provider, signer, userAccount;
 let lotteryContract, frollToken;
 
-// ABI hợp đồng xổ số
+// Khởi tạo ABI hợp đồng xổ số
 const lotteryABI = [ 
     {
         "inputs": [{"internalType": "contract IERC20", "name": "_frollToken", "type": "address"}, 
@@ -23,29 +23,16 @@ const lotteryABI = [
         "inputs": [], "name": "lastDrawTimestamp",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
         "stateMutability": "view", "type": "function"
-    },
-    {
-        "inputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "name": "jackpotHistory",
-        "outputs": [{"internalType": "bytes32", "name": "blockHash", "type": "bytes32"}],
-        "stateMutability": "view", "type": "function"
     }
 ];
 
-// ABI hợp đồng token FROLL (Chuẩn ERC-20)
+// Khởi tạo ABI hợp đồng token FROLL
 const tokenABI = [
     {
         "inputs": [{"internalType": "address", "name": "owner", "type": "address"}],
         "name": "balanceOf",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
         "stateMutability": "view", "type": "function"
-    },
-    {
-        "inputs": [{"internalType": "address", "name": "spender", "type": "address"},
-                   {"internalType": "uint256", "name": "value", "type": "uint256"}],
-        "name": "approve",
-        "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
-        "stateMutability": "nonpayable", "type": "function"
     }
 ];
 
@@ -61,6 +48,7 @@ async function connectWallet() {
         document.getElementById("connectWallet").style.background = "#27ae60";
 
         initContracts();
+        loadUserBalance();
     } else {
         alert("MetaMask not found! Please install MetaMask.");
     }
@@ -74,67 +62,27 @@ function initContracts() {
     loadJackpotData();
 }
 
-// Lấy thông tin Jackpot & thời gian mở thưởng
-async function loadJackpotData() {
+// Hiển thị số dư ví (FROLL & BNB)
+async function loadUserBalance() {
     try {
-        const jackpotBalance = await frollToken.balanceOf(lotteryContractAddress);
-        const jackpotInFroll = ethers.utils.formatEther(jackpotBalance);
-        document.getElementById("jackpotAmount").innerText = `${jackpotInFroll} FROLL`;
+        const bnbBalance = await provider.getBalance(userAccount);
+        const frollBalance = await frollToken.balanceOf(userAccount);
 
-        const lastDrawTimestamp = await lotteryContract.lastDrawTimestamp();
-        if (lastDrawTimestamp.toNumber() === 0) {
-            document.getElementById("nextDrawTime").innerText = "Waiting for first draw...";
-        } else {
-            const nextDraw = new Date((lastDrawTimestamp.toNumber() + 86400) * 1000);
-            document.getElementById("nextDrawTime").innerText = nextDraw.toUTCString();
-        }
+        document.getElementById("bnbBalance").innerText = `BNB: ${ethers.utils.formatEther(bnbBalance)} BNB`;
+        document.getElementById("frollBalance").innerText = `FROLL: ${ethers.utils.formatEther(frollBalance)} FROLL`;
     } catch (error) {
-        console.error("Error fetching jackpot:", error);
-        document.getElementById("jackpotAmount").innerText = "Error loading jackpot";
+        console.error("Error fetching balance:", error);
     }
 }
 
-// Mở & đóng cửa sổ chọn vé
-function openTicketModal() {
-    document.getElementById("ticketModal").style.display = "block";
-    generateTicketSelection();
-}
-function closeTicketModal() {
-    document.getElementById("ticketModal").style.display = "none";
+// Chuẩn hóa vé số theo định dạng dễ đọc
+function formatTickets(tickets) {
+    return tickets.map((ticket, index) => {
+        return `${index + 1}#: ${ticket.slice(0, 5).join(",")};${ticket[5]}`;
+    }).join("\n");
 }
 
-// Tạo giao diện chọn vé số
-function generateTicketSelection() {
-    const ticketContainer = document.getElementById("ticketContainer");
-    ticketContainer.innerHTML = "";
-
-    for (let i = 0; i < 5; i++) {
-        const div = document.createElement("div");
-        div.classList.add("ticket");
-
-        let numbers = [];
-        for (let j = 0; j < 5; j++) {
-            numbers.push(createNumberInput(1, 70));
-        }
-        numbers.push(createNumberInput(1, 25, true));
-
-        numbers.forEach(num => div.appendChild(num));
-        ticketContainer.appendChild(div);
-    }
-}
-
-// Tạo input chọn số
-function createNumberInput(min, max, isMegaBall = false) {
-    const input = document.createElement("input");
-    input.type = "number";
-    input.min = min;
-    input.max = max;
-    input.classList.add(isMegaBall ? "mega-ball" : "normal-number");
-    input.placeholder = isMegaBall ? "MB" : "##";
-    return input;
-}
-
-// Chọn vé nhanh (Quick Pick)
+// Chọn vé tự động (Quick Pick)
 function generateRandomTickets() {
     document.querySelectorAll(".ticket").forEach(ticket => {
         let selectedNumbers = new Set();
@@ -173,11 +121,37 @@ async function purchaseTickets() {
         const buyTx = await lotteryContract.connect(signer).buyTicket(tickets);
         await buyTx.wait();
 
-        alert("Tickets purchased successfully!");
+        alert(`Tickets purchased successfully!\n${formatTickets(tickets)}`);
         closeTicketModal();
+        loadUserTickets();
+        loadUserBalance();
     } catch (error) {
         console.error("Purchase failed:", error);
         alert("Transaction failed. Please try again.");
+    }
+}
+
+// Lấy vé số của người chơi
+async function loadUserTickets() {
+    try {
+        const ticketCount = await lotteryContract.participants(userAccount);
+        if (ticketCount.toNumber() === 0) {
+            document.getElementById("userTickets").innerHTML = "<p>You have no tickets.</p>";
+            return;
+        }
+
+        let ticketsHTML = "<h3>Your Tickets:</h3><ul>";
+        for (let i = 0; i < ticketCount; i++) {
+            const ticketData = await lotteryContract.tickets(userAccount, i);
+            let ticketNumbers = ticketData.map(num => num.toNumber());
+            ticketsHTML += `<li>${i + 1}#: ${ticketNumbers.slice(0, 5).join(",")};${ticketNumbers[5]}</li>`;
+        }
+        ticketsHTML += "</ul>";
+
+        document.getElementById("userTickets").innerHTML = ticketsHTML;
+    } catch (error) {
+        console.error("Error fetching tickets:", error);
+        document.getElementById("userTickets").innerHTML = "<p>Error loading tickets.</p>";
     }
 }
 
