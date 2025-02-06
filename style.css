@@ -35,19 +35,28 @@ body {
     background: #e67e22;
 }
 
-/* Hero Section */
-.hero {
+/* Lottery Info */
+.lottery-info {
     padding: 50px 20px;
 }
 
-.hero h1 {
+.lottery-info h1 {
     font-size: 36px;
     margin-bottom: 10px;
 }
 
-.hero p {
+.lottery-info p {
     font-size: 18px;
     margin: 10px 0;
+}
+
+.info-box {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    margin: 10px auto;
+    width: 60%;
+    border-radius: 10px;
+    font-size: 20px;
 }
 
 .play-btn {
@@ -157,16 +166,12 @@ button:hover {
     margin-top: 30px;
 }
 
-.results ul {
-    list-style: none;
-    padding: 0;
-}
-
-.results li {
+.results p {
+    font-size: 18px;
     background: rgba(255, 255, 255, 0.2);
     padding: 10px;
-    margin: 5px;
     border-radius: 5px;
+    display: inline-block;
 }
 
 @media (max-width: 768px) {
@@ -176,5 +181,9 @@ button:hover {
     
     .ticket {
         flex-direction: column;
+    }
+
+    .info-box {
+        width: 80%;
     }
 }
