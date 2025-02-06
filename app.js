@@ -5,9 +5,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const frollBalanceDisplay = document.getElementById("frollBalance");
     const bnbBalanceDisplay = document.getElementById("bnbBalance");
     const jackpotAmount = document.getElementById("jackpot-amount");
-    const ticketGrid = document.querySelector(".ticket-grid");
-    const submitTicketButton = document.getElementById("submitTicket");
-    const resultMessage = document.getElementById("result-message");
+    const submitTicketButton = document.getElementById("buyTickets");
+    const resultMessage = document.getElementById("transaction-status");
     
     // Địa chỉ hợp đồng trên BSC
     const FROLL_ADDRESS = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1";
