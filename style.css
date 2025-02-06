@@ -1,221 +1,102 @@
-/* Global Styles */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white;
     text-align: center;
+    background-color: #f8f9fa;
 }
 
-/* Navbar */
 .navbar {
+    background-color: #004085;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 15px 20px;
 }
 
 .logo {
-    height: 50px;
+    width: 100px;
 }
 
-/* Wallet Connect Button */
 .wallet-btn {
-    background: #f39c12;
+    background-color: #27ae60;
     color: white;
     border: none;
     padding: 10px 20px;
-    font-size: 16px;
     cursor: pointer;
-    border-radius: 5px;
-}
-
-.wallet-btn:hover {
-    background: #e67e22;
-}
-
-/* Lottery Info */
-.lottery-info {
-    padding: 50px 20px;
-}
-
-.lottery-info h1 {
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-
-.lottery-info p {
-    font-size: 18px;
-    margin: 10px 0;
 }
 
 .info-box {
-    background: rgba(255, 255, 255, 0.2);
+    background-color: #fff;
     padding: 15px;
-    margin: 10px auto;
-    width: 60%;
-    border-radius: 10px;
-    font-size: 20px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Wallet Balance */
-.info-box p {
-    margin: 5px;
-    font-size: 18px;
-}
-
-/* Play Now Button */
 .play-btn {
-    background: #27ae60;
-    padding: 12px 20px;
-    font-size: 20px;
+    background-color: #ff5733;
     color: white;
     border: none;
-    border-radius: 5px;
+    padding: 15px 25px;
+    font-size: 18px;
     cursor: pointer;
-    margin-top: 15px;
+    margin-top: 20px;
 }
 
-.play-btn:hover {
-    background: #219150;
-}
-
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .modal-content {
-    background: #34495e;
-    width: 60%;
+    background-color: #fff;
     margin: 10% auto;
     padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
-}
-
-.close {
-    float: right;
-    font-size: 30px;
-    cursor: pointer;
-    color: white;
-}
-
-.close:hover {
-    color: #f39c12;
-}
-
-/* Ticket Selection */
-#ticketContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 20px;
+    width: 50%;
+    border-radius: 5px;
 }
 
 .ticket {
-    background: #2c3e50;
-    padding: 15px;
-    margin: 10px;
-    border-radius: 8px;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.ticket input {
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    font-size: 18px;
-    border: none;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 5px;
+    background-color: #fff;
     border-radius: 5px;
-    background: #ecf0f1;
-    color: black;
 }
 
-.mega-ball {
-    background: #f39c12;
+.ticket .number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 1px solid #004085;
+    cursor: pointer;
+    margin: 2px;
+}
+
+.ticket .number.selected {
+    background-color: #ff5733;
     color: white;
-    font-weight: bold;
 }
 
-/* Buy & Quick Pick Buttons */
-button {
-    padding: 12px;
-    font-size: 16px;
+.check-hash input {
+    padding: 10px;
+    width: 300px;
+}
+
+.check-hash button {
+    padding: 10px;
+    background-color: #004085;
+    color: white;
     border: none;
     cursor: pointer;
-    margin: 10px;
-    border-radius: 5px;
-}
-
-button:hover {
-    opacity: 0.9;
-}
-
-/* Jackpot Section */
-.jackpot-section {
-    margin-top: 30px;
-    font-size: 20px;
-}
-
-/* Recent Winners */
-.results {
-    margin-top: 30px;
-}
-
-.results p {
-    font-size: 18px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 10px;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-/* User Tickets */
-.user-tickets {
-    margin-top: 30px;
-}
-
-.user-tickets h2 {
-    font-size: 24px;
-}
-
-.user-tickets div {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 15px;
-    margin: 10px auto;
-    width: 60%;
-    border-radius: 10px;
-    font-size: 18px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .modal-content {
-        width: 90%;
-    }
-    
-    .ticket {
-        flex-direction: column;
-    }
-
-    .info-box {
-        width: 80%;
-    }
-
-    .user-tickets div {
-        width: 80%;
-    }
 }
