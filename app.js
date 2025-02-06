@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let provider, signer, frollToken, lotteryContract, userAddress;
 
-    // Kết nối ví MetaMask
+// Kết nối ví MetaMask
     async function connectWallet() {
         if (window.ethereum) {
             try {
@@ -204,7 +204,7 @@ buyTicketsButton.addEventListener("click", async () => {
         let powerNumber = [...document.querySelectorAll(`button.selected[data-ticket='${i}'][data-max='25']`)].map(btn => parseInt(btn.dataset.value));
 
         if (selectedNumbers.length === 5 && powerNumber.length === 1) {
-            tickets.push([...selectedNumbers, ...powerNumber]);
+            tickets.push([...selectedNumbers.sort((a, b) => a - b), ...powerNumber]);  // Sắp xếp các số trước khi lưu vào blockchain
         }
     }
 
