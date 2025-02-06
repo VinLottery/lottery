@@ -11,7 +11,7 @@ body {
 /* Header */
 header {
     background-color: #1a1a1a;
-    padding: 10px 20px;
+    padding: 15px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -44,19 +44,62 @@ nav ul li a {
 nav ul li a:hover {
     color: #f4a261;
 }
-/* Main Section */
-main {
-    padding: 20px;
-}
-
-/* Jackpot Section */
-#jackpot {
-    margin: 20px auto;
-    padding: 20px;
+/* PowerBall Information */
+#powerball-info {
     background-color: #222;
-    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
     width: 80%;
     max-width: 600px;
+    border-radius: 10px;
+}
+
+#powerball-info h1 {
+    color: #f4a261;
+}
+
+#powerball-info p {
+    font-size: 18px;
+    margin: 5px 0;
+}
+
+/* Countdown Timer */
+#countdownTimer {
+    font-size: 22px;
+    font-weight: bold;
+    color: #f4a261;
+    margin: 15px auto;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+/* Play Now Button */
+#play-button {
+    background-color: #f4a261;
+    color: #121212;
+    font-size: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+#play-button:hover {
+    background-color: #e76f51;
+}
+
+/* Jackpot Results */
+#jackpot-results {
+    background-color: #333;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 10px;
 }
 
 .jackpot-numbers {
@@ -70,71 +113,133 @@ main {
     font-size: 14px;
     color: #bbbbbb;
 }
-
 /* Buy Ticket Section */
 #buy-ticket {
-    margin: 20px auto;
+    background-color: #444;
     padding: 20px;
-    background-color: #333;
-    border-radius: 10px;
+    margin: 20px auto;
     width: 80%;
-    max-width: 600px;
+    max-width: 800px;
+    border-radius: 10px;
 }
 
-.number-selection {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
+#buy-ticket h1 {
+    color: #f4a261;
 }
 
-.number-selection label {
-    display: block;
-    font-size: 14px;
-    color: #ffffff;
-}
-
-.number-selection input {
-    width: 60px;
-    padding: 5px;
-    text-align: center;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #f4a261;
+/* Ticket Grid */
+.ticket {
     background-color: #222;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: inline-block;
+    width: 100%;
+}
+
+/* Number Grid */
+.number-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 5px;
+    margin: 10px auto;
+    justify-content: center;
+}
+
+.number-grid button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    border: none;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+}
+
+.number-grid button.selected {
+    background-color: red;
     color: white;
 }
 
-/* Buttons */
-button {
+/* Quick Select Buttons */
+.quick-buttons {
+    margin-top: 10px;
+}
+
+.quick-buttons button {
     background-color: #f4a261;
     color: #121212;
-    font-size: 16px;
-    padding: 10px 20px;
+    font-size: 14px;
+    padding: 8px 15px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s;
 }
 
-button:hover {
+.quick-buttons button:hover {
     background-color: #e76f51;
 }
 
+/* Buy Ticket Button */
+#buyTickets {
+    background-color: #f4a261;
+    color: #121212;
+    font-size: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+#buyTickets:hover {
+    background-color: #e76f51;
+}
 /* Wallet Section */
 #wallet {
-    margin: 20px auto;
+    background-color: #333;
     padding: 20px;
-    background-color: #444;
-    border-radius: 10px;
+    margin: 20px auto;
     width: 80%;
     max-width: 600px;
+    border-radius: 10px;
+}
+
+#wallet h2 {
+    color: #f4a261;
+}
+
+#connectWallet {
+    background-color: #f4a261;
+    color: #121212;
+    font-size: 18px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+#connectWallet:hover {
+    background-color: #e76f51;
+}
+
+/* Wallet Address Display */
+#walletAddress {
+    font-size: 16px;
+    margin-top: 10px;
+    color: #ffffff;
 }
 
 /* Footer */
 footer {
     background-color: #1a1a1a;
-    padding: 10px;
+    padding: 15px;
     margin-top: 20px;
     font-size: 14px;
 }
@@ -146,15 +251,4 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
-}
-/* Countdown Timer */
-#countdownTimer {
-    font-size: 20px;
-    font-weight: bold;
-    color: #f4a261;
-    margin: 20px auto;
-    padding: 10px;
-    background-color: #222;
-    border-radius: 10px;
-    width: fit-content;
 }
