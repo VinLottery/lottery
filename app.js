@@ -47,3 +47,87 @@ document.addEventListener("DOMContentLoaded", async () => {
             | BNB: ${ethers.utils.formatEther(balanceBNB)} | FROLL: ${ethers.utils.formatUnits(balanceFROLL, 18)}`;
     }
 });
+// Hiển thị vé số
+function createTickets() {
+    ticketsContainer.innerHTML = "";
+    for (let i = 0; i < 10; i++) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.classList.add("ticket");
+        ticketDiv.dataset.index = i;
+        ticketDiv.innerHTML = `
+            <p>Ticket ${i + 1}</p>
+            <div class="numbers"></div>
+            <button class="quickPick">Quick</button>
+        `;
+        ticketsContainer.appendChild(ticketDiv);
+    }
+}
+createTickets(); // Tạo vé khi trang tải
+
+// Chọn số ngẫu nhiên cho vé
+function generateRandomNumbers() {
+    let numbers = new Set();
+    while (numbers.size < 5) {
+        numbers.add(Math.floor(Math.random() * 70) + 1);
+    }
+    let megaBall = Math.floor(Math.random() * 25) + 1;
+    return [...numbers, megaBall];
+}
+
+// Xử lý chọn nhanh từng vé
+ticketsContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains("quickPick")) {
+        const ticketDiv = event.target.parentElement;
+        const numbersDiv = ticketDiv.querySelector(".numbers");
+        const randomNumbers = generateRandomNumbers();
+        numbersDiv.textContent = randomNumbers.join(" - ");
+        ticketDiv.dataset.numbers = JSON.stringify(randomNumbers);
+    }
+});
+
+// Chọn nhanh tất cả vé
+quickAllButton.addEventListener("click", () => {
+    document.querySelectorAll(".quickPick").forEach(button => button.click());
+});
+
+// Gửi giao dịch mua vé
+buyTicketsButton.addEventListener("click", async () => {
+    if (!userAddress || !lotteryContract) {
+        alert("Please connect your wallet first.");
+        return;
+    }
+
+    let selectedTickets = [];
+    document.querySelectorAll(".ticket").forEach(ticket => {
+        if (ticket.dataset.numbers) {
+            selectedTickets.push(JSON.parse(ticket.dataset.numbers));
+        }
+    });
+
+    if (selectedTickets.length === 0) {
+        alert("Please select at least one ticket.");
+        return;
+    }
+
+    try {
+        // Kiểm tra Allowance
+        const allowance = await frollToken.allowance(userAddress, LOTTERY_ADDRESS);
+        const totalCost = ethers.utils.parseUnits((selectedTickets.length * 0.0001).toString(), 18);
+        
+        if (allowance.lt(totalCost)) {
+            let approveTx = await frollToken.approve(LOTTERY_ADDRESS, totalCost);
+            await approveTx.wait();
+        }
+
+        // Gửi giao dịch mua vé
+        let tx = await lotteryContract.buyTicket(selectedTickets);
+        await tx.wait();
+        alert("Tickets purchased successfully!");
+
+        // Cập nhật số dư sau khi mua vé
+        updateBalances();
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        alert("Transaction failed. Please try again.");
+    }
+});
