@@ -21,13 +21,6 @@ body {
     height: 50px;
 }
 
-/* Website Logo */
-.site-logo img {
-    width: 200px;
-    display: block;
-    margin: 20px auto;
-}
-
 /* Wallet Connect Button */
 .wallet-btn {
     background: #f39c12;
@@ -67,7 +60,7 @@ body {
     font-size: 20px;
 }
 
-/* Wallet Balance Box */
+/* Wallet Balance */
 .info-box p {
     margin: 5px;
     font-size: 18px;
