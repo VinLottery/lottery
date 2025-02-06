@@ -84,8 +84,14 @@ async function loadJackpotData() {
         document.getElementById("jackpotAmount").innerText = `${ethers.utils.formatEther(jackpotBalance)} FROLL`;
 
         const lastDrawTimestamp = await lotteryContract.lastDrawTimestamp();
-        const nextDraw = new Date((lastDrawTimestamp.toNumber() + 86400) * 1000);
-        document.getElementById("nextDrawTime").innerText = nextDraw.toUTCString();
+        const lastDrawTime = lastDrawTimestamp.toNumber();
+
+        if (lastDrawTime === 0) {
+            document.getElementById("nextDrawTime").innerText = "Not available";
+        } else {
+            const nextDraw = new Date((lastDrawTime + 86400) * 1000);
+            document.getElementById("nextDrawTime").innerText = nextDraw.toUTCString();
+        }
     } catch (error) {
         console.error("Error fetching jackpot:", error);
         document.getElementById("jackpotAmount").innerText = "Error loading jackpot";
@@ -97,13 +103,14 @@ async function loadJackpotData() {
 async function loadUserTickets() {
     try {
         const ticketCount = await lotteryContract.participants(userAccount);
+
         if (ticketCount.toNumber() === 0) {
             document.getElementById("userTickets").innerHTML = "<p>You have no tickets.</p>";
             return;
         }
 
         let ticketsHTML = "<h3>Your Tickets:</h3><ul>";
-        for (let i = 0; i < ticketCount; i++) {
+        for (let i = 0; i < ticketCount.toNumber(); i++) {
             const ticketData = await lotteryContract.tickets(userAccount, i);
             let ticketNumbers = ticketData.map(num => num.toNumber());
             ticketsHTML += `<li>${i + 1}#: ${ticketNumbers.slice(0, 5).join(",")};${ticketNumbers[5]}</li>`;
