@@ -17,15 +17,20 @@ async function connectWallet() {
     if (window.ethereum) {
         web3 = new Web3(window.ethereum);
         try {
-            const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+            const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
             userAccount = accounts[0];
-            document.getElementById("connectWallet").innerText = "Connected";
+
+            // Hiển thị địa chỉ ví sau khi kết nối
+            document.getElementById("connectWallet").innerText = `Wallet: ${userAccount.slice(0, 6)}...${userAccount.slice(-4)}`;
+            document.getElementById("connectWallet").style.background = "#27ae60";
+
             initContracts();
         } catch (error) {
             console.error("Wallet connection failed:", error);
+            alert("Failed to connect wallet. Please try again.");
         }
     } else {
-        alert("Please install MetaMask!");
+        alert("MetaMask not found! Please install MetaMask.");
     }
 }
 
