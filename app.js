@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const jackpotAmount = document.getElementById("jackpot-amount");
     const submitTicketButton = document.getElementById("buyTickets");
     const resultMessage = document.getElementById("transaction-status");
+    const countdownTimer = document.getElementById("countdownTimer");
     
     // Địa chỉ hợp đồng trên BSC
     const FROLL_ADDRESS = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1";
@@ -20,7 +21,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Lắng nghe khi trang tải hoàn thành và gọi startCountdown
     window.addEventListener("load", () => {
-        fetchJackpotBalance();
+        fetchJackpotBalance(); // Hiển thị jackpot khi trang tải
         startCountdown();  // Bắt đầu đồng hồ đếm ngược khi trang được tải
     });
 
@@ -73,6 +74,27 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Failed to fetch jackpot balance:", error);
             jackpotAmount.textContent = "Error loading jackpot.";
         }
+    }
+
+    // Đồng hồ đếm ngược
+    function startCountdown() {
+        setInterval(() => {
+            const now = new Date();
+            const targetTime = new Date();
+            targetTime.setUTCHours(0, 10, 0, 0); // Thời gian quay số là 00:10 UTC
+
+            const timeDifference = targetTime - now;
+
+            if (timeDifference <= 0) {
+                countdownTimer.textContent = "Draw is happening now!";
+            } else {
+                const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                countdownTimer.textContent = `${hours}h ${minutes}m ${seconds}s`;
+            }
+        }, 1000);
     }
 
     // Chọn số tự động
