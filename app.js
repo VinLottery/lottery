@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 fetchJackpotBalance();
             } catch (error) {
                 console.error("Wallet connection failed:", error);
+                alert("There was an error connecting to the wallet.");
             }
         } else {
             alert("MetaMask is not installed. Please install it to use this feature.");
