@@ -18,6 +18,11 @@
         <button id="connectWallet" class="wallet-btn">Connect Wallet</button>
     </header>
 
+    <!-- Website Logo -->
+    <div class="site-logo">
+        <img src="web48.png" alt="Lottery.VIN Full Logo">
+    </div>
+
     <!-- Lottery Information -->
     <section class="lottery-info">
         <h1>Mega Millions Lottery</h1>
@@ -43,6 +48,13 @@
             <p>Open: 00:15 UTC - Close: 23:55 UTC</p>
         </div>
 
+        <!-- Wallet Balances -->
+        <div class="info-box">
+            <h2>💳 Your Balance</h2>
+            <p id="bnbBalance">BNB: Loading...</p>
+            <p id="frollBalance">FROLL: Loading...</p>
+        </div>
+
         <button class="play-btn" onclick="openTicketModal()">Play Now</button>
     </section>
 
@@ -58,6 +70,12 @@
             <button id="buyTickets" onclick="purchaseTickets()">Buy Tickets</button>
         </div>
     </div>
+
+    <!-- User Tickets -->
+    <section class="user-tickets">
+        <h2>🎟️ Your Tickets</h2>
+        <div id="userTickets">Loading...</div>
+    </section>
 
     <!-- Lottery Results -->
     <section class="results">
