@@ -16,12 +16,11 @@ const lotteryABI = [
         "stateMutability": "nonpayable", "type": "constructor"
     },
     {
-        "inputs": [], "name": "lastDrawTimestamp",
-        "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
-        "stateMutability": "view", "type": "function"
+        "inputs": [{"internalType": "uint256[6][]", "name": "ticketSets", "type": "uint256[6][]"}],
+        "name": "buyTicket", "outputs": [], "stateMutability": "nonpayable", "type": "function"
     },
     {
-        "inputs": [], "name": "ticketPrice",
+        "inputs": [], "name": "lastDrawTimestamp",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
         "stateMutability": "view", "type": "function"
     }
@@ -34,6 +33,12 @@ const tokenABI = [
         "name": "balanceOf",
         "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
         "stateMutability": "view", "type": "function"
+    },
+    {
+        "inputs": [{"internalType": "address", "name": "spender", "type": "address"}, 
+                   {"internalType": "uint256", "name": "value", "type": "uint256"}],
+        "name": "approve", "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+        "stateMutability": "nonpayable", "type": "function"
     }
 ];
 
@@ -87,11 +92,13 @@ async function loadJackpotData() {
         const lastDrawTime = lastDrawTimestamp.toNumber();
 
         if (lastDrawTime === 0) {
-            document.getElementById("nextDrawTime").innerText = "Not available";
+            document.getElementById("nextDrawTime").innerText = "Pending...";
         } else {
             const nextDraw = new Date((lastDrawTime + 86400) * 1000);
             document.getElementById("nextDrawTime").innerText = nextDraw.toUTCString();
         }
+
+        startCountdown();
     } catch (error) {
         console.error("Error fetching jackpot:", error);
         document.getElementById("jackpotAmount").innerText = "Error loading jackpot";
@@ -99,42 +106,14 @@ async function loadJackpotData() {
     }
 }
 
-// Lấy vé số của người chơi
-async function loadUserTickets() {
-    try {
-        const ticketCount = await lotteryContract.participants(userAccount);
-
-        if (ticketCount.toNumber() === 0) {
-            document.getElementById("userTickets").innerHTML = "<p>You have no tickets.</p>";
-            return;
-        }
-
-        let ticketsHTML = "<h3>Your Tickets:</h3><ul>";
-        for (let i = 0; i < ticketCount.toNumber(); i++) {
-            const ticketData = await lotteryContract.tickets(userAccount, i);
-            let ticketNumbers = ticketData.map(num => num.toNumber());
-            ticketsHTML += `<li>${i + 1}#: ${ticketNumbers.slice(0, 5).join(",")};${ticketNumbers[5]}</li>`;
-        }
-        ticketsHTML += "</ul>";
-
-        document.getElementById("userTickets").innerHTML = ticketsHTML;
-    } catch (error) {
-        console.error("Error fetching tickets:", error);
-        document.getElementById("userTickets").innerHTML = "<p>Error loading tickets.</p>";
-    }
+// Chuẩn hóa vé số theo định dạng dễ đọc
+function formatTickets(tickets) {
+    return tickets.map((ticket, index) => {
+        return `${index + 1}#: ${ticket.slice(0, 5).join(",")};${ticket[5]}`;
+    }).join("\n");
 }
 
-// Mở cửa sổ chọn vé
-function openTicketModal() {
-    document.getElementById("ticketModal").style.display = "block";
-}
-
-// Đóng cửa sổ chọn vé
-function closeTicketModal() {
-    document.getElementById("ticketModal").style.display = "none";
-}
-
-// Mua vé số
+// Mua vé số (gộp 10 vé vào 1 giao dịch)
 async function purchaseTickets() {
     let tickets = [];
 
@@ -160,7 +139,7 @@ async function purchaseTickets() {
         const buyTx = await lotteryContract.connect(signer).buyTicket(tickets);
         await buyTx.wait();
 
-        alert(`Tickets purchased successfully!`);
+        alert(`Tickets purchased successfully!\n${formatTickets(tickets)}`);
         closeTicketModal();
         loadUserTickets();
         loadUserBalance();
@@ -168,6 +147,28 @@ async function purchaseTickets() {
         console.error("Purchase failed:", error);
         alert("Transaction failed. Please try again.");
     }
+}
+
+// Đếm ngược đến 00:10 UTC hàng ngày
+function startCountdown() {
+    function updateCountdown() {
+        const now = new Date();
+        const nextDraw = new Date();
+        nextDraw.setUTCHours(0, 10, 0, 0);
+        if (now >= nextDraw) {
+            nextDraw.setUTCDate(nextDraw.getUTCDate() + 1);
+        }
+
+        const diff = nextDraw - now;
+        const hours = String(Math.floor(diff / (1000 * 60 * 60))).padStart(2, "0");
+        const minutes = String(Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
+        const seconds = String(Math.floor((diff % (1000 * 60)) / 1000)).padStart(2, "0");
+
+        document.getElementById("countdown").innerText = `${hours}:${minutes}:${seconds}`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
 }
 
 // Gán sự kiện cho các nút
