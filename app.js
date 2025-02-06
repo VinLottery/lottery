@@ -131,3 +131,77 @@ buyTicketsButton.addEventListener("click", async () => {
         alert("Transaction failed. Please try again.");
     }
 });
+const latestDraw = document.getElementById("latestDraw");
+const searchDate = document.getElementById("searchDate");
+const searchResultButton = document.getElementById("searchResult");
+const searchOutput = document.getElementById("searchOutput");
+
+// Hiển thị kết quả kỳ gần nhất
+async function getLatestResult() {
+    try {
+        const lastTimestamp = await lotteryContract.lastDrawTimestamp();
+        if (lastTimestamp.toNumber() === 0) {
+            latestDraw.textContent = "No results available yet.";
+            return;
+        }
+
+        const jackpotData = await lotteryContract.jackpotHistory(lastTimestamp);
+        const blockHash = jackpotData.blockHash;
+        const jackpotNumbers = await generateJackpotNumbers(blockHash);
+
+        latestDraw.textContent = `Latest Draw: ${jackpotNumbers.join(" - ")}`;
+    } catch (error) {
+        console.error("Error fetching latest result:", error);
+        latestDraw.textContent = "Error fetching results.";
+    }
+}
+
+// Tạo số trúng thưởng từ block hash
+async function generateJackpotNumbers(blockHash) {
+    let seed = ethers.BigNumber.from(blockHash);
+    let numbers = [];
+    let usedNumbers = new Set();
+
+    // Lấy 5 số từ 1-70 (không trùng)
+    while (numbers.length < 5) {
+        let num = seed.mod(70).toNumber() + 1;
+        if (!usedNumbers.has(num)) {
+            numbers.push(num);
+            usedNumbers.add(num);
+        }
+        seed = seed.div(70);
+    }
+
+    // Lấy số Mega Ball từ 1-25
+    let megaBall = seed.mod(25).toNumber() + 1;
+    numbers.push(megaBall);
+
+    return numbers;
+}
+
+// Tra cứu kết quả theo ngày
+searchResultButton.addEventListener("click", async () => {
+    if (!searchDate.value) {
+        alert("Please select a date.");
+        return;
+    }
+
+    try {
+        const timestamp = new Date(searchDate.value).getTime() / 1000;
+        const jackpotData = await lotteryContract.jackpotHistory(timestamp);
+
+        if (jackpotData.blockHash === ethers.constants.HashZero) {
+            searchOutput.textContent = "No draw on this date.";
+            return;
+        }
+
+        const jackpotNumbers = await generateJackpotNumbers(jackpotData.blockHash);
+        searchOutput.textContent = `Result on ${searchDate.value}: ${jackpotNumbers.join(" - ")}`;
+    } catch (error) {
+        console.error("Error fetching result:", error);
+        searchOutput.textContent = "Error fetching results.";
+    }
+});
+
+// Gọi ngay khi trang tải
+getLatestResult();
