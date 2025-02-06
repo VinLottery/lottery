@@ -5,18 +5,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     const frollBalanceDisplay = document.getElementById("frollBalance");
     const bnbBalanceDisplay = document.getElementById("bnbBalance");
     const jackpotAmount = document.getElementById("jackpot-amount");
-    
+
     // Địa chỉ hợp đồng trên BSC
     const FROLL_ADDRESS = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1";
     const LOTTERY_ADDRESS = "0x28ba1dE00bF69B7acE03364eEA1E34F86Cde2944";
 
     // ABI hợp đồng
-    const FROLL_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]; // Dán ABI token FROLL ở đây
-    const LOTTERY_ABI = [{"inputs":[{"internalType":"contract IERC20","name":"_frollToken","type":"address"},{"internalType":"contract IBSCBlockhash","name":"_bscBlockhash","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256[6]","name":"jackpotNumbers","type":"uint256[6]"},{"indexed":false,"internalType":"bytes32","name":"blockHash","type":"bytes32"}],"name":"JackpotDrawn","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"uint256[6]","name":"numbers","type":"uint256[6]"}],"name":"TicketPurchased","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"prize","type":"uint256"}],"name":"WinnerFound","type":"event"},{"inputs":[],"name":"bscBlockhash","outputs":[{"internalType":"contract IBSCBlockhash","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256[6][]","name":"ticketSets","type":"uint256[6][]"}],"name":"buyTicket","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"drawJackpot","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"frollToken","outputs":[{"internalType":"contract IERC20","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"jackpotHistory","outputs":[{"internalType":"bytes32","name":"blockHash","type":"bytes32"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lastDrawTimestamp","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"participants","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"ticketPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"winners","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]; // Dán ABI hợp đồng Mega Millions ở đây
+    const FROLL_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"allowance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientAllowance","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"uint256","name":"balance","type":"uint256"},{"internalType":"uint256","name":"needed","type":"uint256"}],"name":"ERC20InsufficientBalance","type":"error"},{"inputs":[{"internalType":"address","name":"approver","type":"address"}],"name":"ERC20InvalidApprover","type":"error"},{"inputs":[{"internalType":"address","name":"receiver","type":"address"}],"name":"ERC20InvalidReceiver","type":"error"},{"inputs":[{"internalType":"address","name":"sender","type":"address"}],"name":"ERC20InvalidSender","type":"error"},{"inputs":[{"internalType":"address","name":"spender","type":"address"}],"name":"ERC20InvalidSpender","type":"error"}]; // Dán ABI token FROLL ở đây
+    const LOTTERY_ABI = [{"inputs":[{"internalType":"contract IERC20","name":"_frollToken","type":"address"},{"internalType":"contract IBSCBlockhash","name":"_bscBlockhash","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"uint256[6][]","name":"ticketSets","type":"uint256[6][]"}],"name":"buyTicket","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"ticketPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"}]; // Dán ABI hợp đồng Mega Millions ở đây
 
     let provider, signer, frollToken, lotteryContract, userAddress;
 
-// Kết nối ví MetaMask
+    // Kết nối ví MetaMask
     async function connectWallet() {
         if (window.ethereum) {
             try {
@@ -69,16 +69,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Event Listeners
     walletButton.addEventListener("click", connectWallet);
 });
+
 // DOM Elements
 const playButton = document.getElementById("play-button");
 const ticketsContainer = document.getElementById("ticketsContainer");
 const quickAllButton = document.getElementById("quickAll");
 
-// Hiển thị giao diện chọn vé số
 playButton.addEventListener("click", () => {
     ticketsContainer.innerHTML = ""; // Xóa vé cũ
     for (let i = 0; i < 10; i++) {
-        createTicket(i);
+        createTicket(i); // Tạo vé số
     }
 });
 
@@ -95,12 +95,7 @@ function createTicket(ticketIndex) {
         numberGrid70.appendChild(btn);
     }
 
-    // Chú thích cho số 1-70
-    const numberLabel70 = document.createElement("div");
-    numberLabel70.classList.add("ticket-header");
-    numberLabel70.textContent = "Choose 5 numbers from 1-70";
-
-    // Tạo lưới số từ 1-25
+    // Tạo lưới số từ 1-25 (Powerball)
     const numberGrid25 = document.createElement("div");
     numberGrid25.classList.add("number-grid-bottom");
     for (let i = 1; i <= 25; i++) {
@@ -108,21 +103,14 @@ function createTicket(ticketIndex) {
         numberGrid25.appendChild(btn);
     }
 
-    // Chú thích cho số 1-25 (Powerball)
-    const numberLabel25 = document.createElement("div");
-    numberLabel25.classList.add("ticket-header");
-    numberLabel25.textContent = "Choose 1 number from 1-25 (Powerball)";
-
     // Nút "Quick" để chọn nhanh vé
     const quickButton = document.createElement("button");
     quickButton.textContent = "Quick";
     quickButton.classList.add("quick-buttons");
-    quickButton.addEventListener("click", () => quickPick(ticketIndex));
+    quickButton.addEventListener("click", () => quickPick(ticketIndex)); // Chọn nhanh cho vé
 
     // Thêm tất cả vào vé
-    ticketDiv.appendChild(numberLabel70);
     ticketDiv.appendChild(numberGrid70);
-    ticketDiv.appendChild(numberLabel25);
     ticketDiv.appendChild(numberGrid25);
     ticketDiv.appendChild(quickButton);
     ticketsContainer.appendChild(ticketDiv);
@@ -162,11 +150,13 @@ function quickPick(ticketIndex) {
     let numbers70 = [];
     let numbers25 = [];
 
+    // Chọn 5 số ngẫu nhiên từ 1-70
     while (numbers70.length < 5) {
         let randomNum = Math.floor(Math.random() * 70) + 1;
         if (!numbers70.includes(randomNum)) numbers70.push(randomNum);
     }
 
+    // Chọn 1 số Powerball từ 1-25
     numbers25.push(Math.floor(Math.random() * 25) + 1);
 
     let buttons = document.querySelectorAll(`button[data-ticket='${ticketIndex}']`);
@@ -186,6 +176,7 @@ quickAllButton.addEventListener("click", () => {
         quickPick(i);
     }
 });
+
 // Elements
 const buyTicketsButton = document.getElementById("buyTickets");
 const transactionStatus = document.getElementById("transaction-status");
@@ -247,24 +238,22 @@ buyTicketsButton.addEventListener("click", async () => {
         transactionStatus.textContent = "Transaction failed!";
     }
 });
+
 // Fetch Latest Jackpot Result
 async function fetchLatestJackpot() {
     if (!lotteryContract) return;
 
     try {
-        // Lấy timestamp của lần quay gần nhất
         const lastTimestamp = await lotteryContract.lastDrawTimestamp();
         if (lastTimestamp.toNumber() === 0) {
             document.getElementById("jackpot-numbers").textContent = "No jackpot results yet.";
             return;
         }
 
-        // Lấy dữ liệu từ hợp đồng
         const result = await lotteryContract.jackpotHistory(lastTimestamp);
         const blockHash = result.blockHash;
         const numbers = await parseJackpotNumbers(blockHash);
 
-        // Hiển thị kết quả
         document.getElementById("jackpot-numbers").textContent = numbers.join(" - ");
         document.getElementById("jackpot-date").textContent = `Drawn on: ${new Date(lastTimestamp.toNumber() * 1000).toLocaleDateString()}`;
     } catch (error) {
@@ -292,7 +281,6 @@ async function startCountdown() {
     if (!lotteryContract) return;
 
     try {
-        // Lấy timestamp của lần quay gần nhất
         const lastTimestamp = await lotteryContract.lastDrawTimestamp();
         let nextDrawTime = lastTimestamp.toNumber() + 86400; // Quay số tiếp theo vào 00:00 UTC
 
