@@ -1,5 +1,5 @@
 // Contract Addresses
-const lotteryContractAddress = "0x6b7300b552D6384cd4e8a36639625669af868A2C";
+const lotteryContractAddress = "0x3C03259E01b5abC7B179f02303DfaFb54BaFe402";
 const frollTokenAddress = "0x7783cBC17d43F936DA1C1D052E4a33a9FfF774c1";
 
 // ABI của hợp đồng Mega Millions Lottery
