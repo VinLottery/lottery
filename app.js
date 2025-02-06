@@ -46,93 +46,6 @@ async function initContracts() {
     lotteryContract = new web3.eth.Contract(abi, contractAddress);
     frollToken = new web3.eth.Contract(frollAbi, frollTokenAddress);
 }
-
-async function updateBalances() {
-    if (!userAccount) return;
-    const bnbBalance = await web3.eth.getBalance(userAccount);
-    const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
-    document.getElementById("bnbBalance").innerText = web3.utils.fromWei(bnbBalance, "ether");
-    document.getElementById("frollBalance").innerText = web3.utils.fromWei(frollBalance, "ether");
-}
-
-async function updateJackpot() {
-    if (!lotteryContract) return;
-    try {
-        const jackpot = await lotteryContract.methods.jackpotPool().call();
-        document.getElementById("jackpot").innerText = `Jackpot: ${web3.utils.fromWei(jackpot, "ether")} FROLL`;
-    } catch (error) {
-        console.error("Error fetching jackpot:", error);
-    }
-}
-
-async function updateLatestResults() {
-    if (!lotteryContract) return;
-    try {
-        const result = await lotteryContract.methods.getLatestWinningNumbers().call();
-        if (result[0].length > 0) {
-            document.getElementById("winningNumbers").innerText = `Winning Numbers: ${result[0].join(", ")}`;
-        } else {
-            document.getElementById("winningNumbers").innerText = "No results available yet";
-        }
-    } catch (error) {
-        console.error("Error fetching latest results:", error);
-    }
-}
-
-document.getElementById("connectWallet").addEventListener("click", connectWallet);
-document.getElementById("buyTicketBtn").addEventListener("click", buyTicket);
-document.getElementById("searchResults").addEventListener("click", searchResultsByDate);
-
-document.addEventListener("DOMContentLoaded", createTicketUI);
-document.addEventListener("DOMContentLoaded", updateLatestResults);
-function createTicketUI() {
-    const ticketContainer = document.getElementById("ticketContainer");
-    ticketContainer.innerHTML = ""; // Xóa vé cũ nếu có
-
-    for (let i = 1; i <= 10; i++) {
-        const ticketDiv = document.createElement("div");
-        ticketDiv.classList.add("ticket");
-
-        let inputs = "";
-        for (let j = 1; j <= 5; j++) {
-            inputs += `<input type="number" id="num${i}_${j}" min="1" max="70" placeholder="${j}">`;
-        }
-        inputs += `<input type="number" id="megaBall${i}" min="1" max="25" placeholder="MB">`;
-
-        ticketDiv.innerHTML = `
-            <p>Ticket ${i}</p>
-            ${inputs}
-            <button onclick="quickPick(${i})">Quick</button>
-        `;
-        ticketContainer.appendChild(ticketDiv);
-    }
-}
-
-// Quick Pick cho từng vé
-function quickPick(ticketNumber) {
-    const selectedNumbers = new Set();
-    while (selectedNumbers.size < 5) {
-        selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
-    }
-    const selectedMegaBall = Math.floor(Math.random() * 25) + 1;
-
-    let index = 1;
-    selectedNumbers.forEach(num => {
-        document.getElementById(`num${ticketNumber}_${index}`).value = num;
-        index++;
-    });
-    document.getElementById(`megaBall${ticketNumber}`).value = selectedMegaBall;
-}
-
-// Quick Pick cho tất cả 10 vé
-document.getElementById("quickAll").addEventListener("click", () => {
-    for (let i = 1; i <= 10; i++) {
-        quickPick(i);
-    }
-});
-
-// Gọi tạo UI khi trang tải
-document.addEventListener("DOMContentLoaded", createTicketUI);
 async function buyTicket() {
     if (!userAccount) {
         alert("Please connect your wallet first!");
@@ -144,12 +57,19 @@ async function buyTicket() {
         let ticket = [];
         for (let j = 1; j <= 5; j++) {
             const num = document.getElementById(`num${i}_${j}`).value;
-            if (!num) continue;
+            if (!num || num < 1 || num > 70) continue; // Kiểm tra số hợp lệ
             ticket.push(Number(num));
         }
         const megaBall = document.getElementById(`megaBall${i}`).value;
-        if (megaBall) ticket.push(Number(megaBall));
-        if (ticket.length === 6) tickets.push(ticket);
+        if (!megaBall || megaBall < 1 || megaBall > 25) {
+            alert(`Mega Ball trên vé ${i} không hợp lệ!`);
+            return;
+        }
+        ticket.push(Number(megaBall)); // Thêm số Mega Ball vào vé
+
+        if (ticket.length === 6) {
+            tickets.push(ticket);
+        }
     }
 
     if (tickets.length === 0) {
@@ -161,10 +81,10 @@ async function buyTicket() {
         const ticketPrice = await lotteryContract.methods.ticketPrice().call();
         const totalPrice = BigInt(ticketPrice) * BigInt(tickets.length);
 
-        // Approve FROLL token for transaction
+        // Approve FROLL token trước khi mua vé
         await frollToken.methods.approve(contractAddress, totalPrice.toString()).send({ from: userAccount });
 
-        // Buy ticket
+        // Gửi giao dịch mua vé
         await lotteryContract.methods.buyTicket(tickets).send({ from: userAccount });
 
         alert("Ticket purchase successful!");
@@ -227,3 +147,66 @@ document.getElementById("searchResults").addEventListener("click", searchResults
 // Cập nhật jackpot và kết quả mới nhất khi tải trang
 document.addEventListener("DOMContentLoaded", updateJackpot);
 document.addEventListener("DOMContentLoaded", updateLatestResults);
+function createTicketUI() {
+    const ticketContainer = document.getElementById("ticketContainer");
+    ticketContainer.innerHTML = ""; // Xóa vé cũ nếu có
+
+    for (let i = 1; i <= 10; i++) {
+        const ticketDiv = document.createElement("div");
+        ticketDiv.classList.add("ticket");
+
+        let inputs = "";
+        for (let j = 1; j <= 5; j++) {
+            inputs += `<input type="number" id="num${i}_${j}" min="1" max="70" placeholder="${j}">`;
+        }
+        inputs += `<input type="number" id="megaBall${i}" min="1" max="25" placeholder="MB">`;
+
+        ticketDiv.innerHTML = `
+            <p>Ticket ${i}</p>
+            ${inputs}
+            <button onclick="quickPick(${i})">Quick</button>
+        `;
+        ticketContainer.appendChild(ticketDiv);
+    }
+}
+
+// Quick Pick cho từng vé
+function quickPick(ticketNumber) {
+    const selectedNumbers = new Set();
+    while (selectedNumbers.size < 5) {
+        selectedNumbers.add(Math.floor(Math.random() * 70) + 1);
+    }
+    const selectedMegaBall = Math.floor(Math.random() * 25) + 1;
+
+    let index = 1;
+    selectedNumbers.forEach(num => {
+        document.getElementById(`num${ticketNumber}_${index}`).value = num;
+        index++;
+    });
+    document.getElementById(`megaBall${ticketNumber}`).value = selectedMegaBall;
+}
+
+// Quick Pick cho tất cả 10 vé
+document.getElementById("quickAll").addEventListener("click", () => {
+    for (let i = 1; i <= 10; i++) {
+        quickPick(i);
+    }
+});
+
+// Gọi tạo UI khi trang tải
+document.addEventListener("DOMContentLoaded", createTicketUI);
+async function updateBalances() {
+    if (!userAccount) return;
+    try {
+        const bnbBalance = await web3.eth.getBalance(userAccount);
+        const frollBalance = await frollToken.methods.balanceOf(userAccount).call();
+
+        document.getElementById("bnbBalance").innerText = web3.utils.fromWei(bnbBalance, "ether");
+        document.getElementById("frollBalance").innerText = web3.utils.fromWei(frollBalance, "ether");
+    } catch (error) {
+        console.error("Error updating balances:", error);
+    }
+}
+
+// Cập nhật số dư khi trang tải
+document.addEventListener("DOMContentLoaded", updateBalances);
