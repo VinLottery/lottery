@@ -3,44 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lottery.vin - Mega Millions</title>
+    <title>Lottery VIN</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.2/web3.min.js"></script>
+    <script defer src="app.js"></script>
 </head>
 <body>
-    <nav>
-        <h1>Lottery.vin</h1>
-        <p id="jackpot">Jackpot: Loading...</p>
+
+    <!-- Header -->
+    <header>
+        <h1>Lottery VIN</h1>
         <button id="connectWallet">Connect Wallet</button>
-    </nav>
-    
+        <p id="walletAddress">Not connected</p>
+    </header>
+
+    <!-- Main content -->
     <main>
-        <section id="walletInfo">
-            <h2>Wallet Information</h2>
-            <p><strong>Address:</strong> <span id="walletAddress">Not connected</span></p>
-            <p><strong>BNB Balance:</strong> <span id="bnbBalance">0</span></p>
-            <p><strong>FROLL Balance:</strong> <span id="frollBalance">0</span></p>
+        <section id="lottery">
+            <h2>Buy Your Tickets</h2>
+            <div id="ticketsContainer"></div>
+            <button id="quickAll">Quick All</button>
+            <button id="buyTickets">Buy Tickets</button>
         </section>
 
-        <section id="buyTicket">
-            <h2>Buy Lottery Tickets</h2>
-            <div class="tickets">
-                <div class="ticket" id="ticketContainer"></div>
-            </div>
-            <button id="quickAll">Quick All</button>
-            <button id="buyTicketBtn">Buy Ticket</button>
-        </section>
-        
-        <section id="latestResults">
-            <h2>Latest Winning Numbers</h2>
-            <p id="winningNumbers">Loading...</p>
-            <label for="searchDate">Search by Date:</label>
+        <section id="results">
+            <h2>Latest Results</h2>
+            <p id="latestDraw"></p>
             <input type="date" id="searchDate">
-            <button id="searchResults">Search</button>
-            <p id="searchedResults"></p>
+            <button id="searchResult">Search</button>
+            <p id="searchOutput"></p>
         </section>
     </main>
-    
-    <script src="app.js"></script>
+
 </body>
 </html>
