@@ -1,76 +1,122 @@
+/* Reset mặc định */
 body {
     font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: #f8f9fa;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    text-align: center;
 }
 
-nav {
-    background-color: #007bff;
+/* Header */
+header {
+    background: #007bff;
     color: white;
     padding: 15px;
+    font-size: 1.5em;
+}
+
+#connectWallet {
+    background: white;
+    color: #007bff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+#connectWallet:hover {
+    background: #e0e0e0;
+}
+
+/* Container chính */
+main {
+    padding: 20px;
+}
+
+/* Khu vực chọn vé số */
+#lottery {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+}
+
+/* Vé số */
+.ticket {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #f9f9f9;
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
 }
 
-button {
-    padding: 10px 20px;
-    margin: 10px;
-    border: none;
-    border-radius: 5px;
-    background-color: #28a745;
+.quickPick {
+    background: #28a745;
     color: white;
-    font-size: 16px;
+    border: none;
+    padding: 5px 10px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #218838;
+.quickPick:hover {
+    background: #218838;
 }
 
-main {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
+/* Nút chọn nhanh & mua vé */
+#quickAll, #buyTickets {
+    background: #ffc107;
+    color: black;
+    border: none;
+    padding: 10px 15px;
+    margin: 10px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+#quickAll:hover, #buyTickets:hover {
+    background: #e0a800;
+}
+
+/* Kết quả xổ số */
+#results {
     background: white;
+    padding: 20px;
+    margin: 20px auto;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
 }
 
-input[type="number"] {
-    width: 50px;
-    padding: 5px;
-    margin: 5px;
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+#searchDate {
+    padding: 8px;
+    font-size: 1em;
 }
 
-.number-selection {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+#searchResult {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 1em;
+    cursor: pointer;
 }
 
-.ticket {
-    background: #ffffff;
-    padding: 10px;
-    margin: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-    text-align: center;
+#searchResult:hover {
+    background: #138496;
 }
 
-.tickets {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-#latestResults {
-    margin-top: 20px;
-    font-size: 18px;
-    font-weight: bold;
+/* Responsive cho Mobile */
+@media (max-width: 600px) {
+    .ticket {
+        flex-direction: column;
+        text-align: center;
+    }
 }
