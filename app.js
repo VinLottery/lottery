@@ -23,8 +23,24 @@ async function connectWallet() {
         document.getElementById("connectWallet").style.background = "#27ae60";
 
         initContracts();
+        loadBalances();
     } else {
         alert("MetaMask not found! Please install MetaMask.");
+    }
+}
+
+// Lấy số dư FROLL & BNB
+async function loadBalances() {
+    if (!signer) return;
+
+    try {
+        const bnbBalance = await provider.getBalance(userAccount);
+        document.getElementById("bnbBalance").innerText = `BNB: ${ethers.utils.formatEther(bnbBalance)} BNB`;
+
+        const frollBalance = await frollToken.balanceOf(userAccount);
+        document.getElementById("frollBalance").innerText = `FROLL: ${ethers.utils.formatEther(frollBalance)} FROLL`;
+    } catch (error) {
+        console.error("Error loading balances:", error);
     }
 }
 
@@ -53,6 +69,11 @@ async function loadJackpotData() {
 
 // Mở cửa sổ chọn vé
 function openTicketModal() {
+    if (!userAccount) {
+        alert("Please connect your wallet first!");
+        return;
+    }
+
     document.getElementById("ticketModal").style.display = "block";
     generateTicketSelection();
 }
@@ -136,6 +157,8 @@ async function purchaseTickets() {
 
 // Lấy vé của người dùng
 async function loadUserTickets() {
+    if (!userAccount) return;
+
     try {
         const tickets = await lotteryContract.getUserTickets(userAccount);
         document.getElementById("userTickets").innerText = tickets || "No tickets found";
